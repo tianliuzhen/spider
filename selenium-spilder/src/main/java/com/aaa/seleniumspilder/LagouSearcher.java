@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.List;
 
@@ -22,9 +23,26 @@ public class LagouSearcher {
     public static void main(String[] args){
         WebDriver chromeDriver = null;
         try {
+            ChromeOptions options = new ChromeOptions();
+
+            //同一个台机器上安装了多个不同版本的Chrome 时，可通过setBinary 指定待测试Chrome
+            //options.setBinary ("E:/PCSoftware/Google/79/Google/Chrome/Application/");
+            /**
+             * 这里有坑啊，同志们
+             * 谷歌浏览器的安装位置 必须在 当前目录下
+             * eg：C:\Users\TLZ\AppData\Local\Google\Chrome\Application\chrome.exe
+             * 浏览器不要使用安装版本，否则每次还是启动安装版本。
+             * 我这本来  使用安装版本  随意指定的位置
+             * 但是一直报错
+             *    Starting ChromeDriver 79.0.3945.36 (3582db32b33893869b8c1339e8f4d9ed1816f143-refs/branch-heads/3945@{#614}) on port 29458
+             *    Only local connections are allowed.
+             *    Please protect ports used by ChromeDriver and related test frameworks to prevent access by malicious code.
+             * 经过测试就是 浏览器位置的原因，后来下了一个 免安装的 谷歌 79.0.3945.36 版本，就可以了
+             */
+            chromeDriver = new ChromeDriver(options);
             //设置webdriver 路径
             System.setProperty("webdriver.chrome.dirver",LagouSearcher.class.getClassLoader().getResource("chromedriver.exe").getPath());
-            chromeDriver = new ChromeDriver();
+
             chromeDriver.get("https://www.lagou.com/zhaopin/Java/?labelWords=label");
             //xpath 选择元素
 
@@ -42,6 +60,7 @@ public class LagouSearcher {
 
         }finally {
             chromeDriver.close();
+            chromeDriver.quit();
         }
 
     }
