@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用于测试jsoup和dom的html</title>
+</head>
+<body>
+   <div id="div1" >
+       <span>div1</span>
+   </div>
+   <div id="div2">
+       <span>div2</span>
+       <ul>
+           <!--自定义属性 name 值为 tom -->
+           <li class="class_aaa class_aaa1" id="id_sh" name="tom">
+               清华大学
+           </li>
+           <li class="class_aaa" id="id_bj">
+               北京大学
+           </li>
+           <li class="class_bbb class_ddd" id="id_xm">
+               厦门大学
+           </li>
+           <ul class="class_eee">
+               <!--自定义属性 abc 值为 123 -->
+               <li abc="123">
+                   小店皇家技校1
+               </li>
+               <!--自定义属性 abc 值为 123 -->
+               <li abc="456">
+                   小店皇家技校2
+               </li>
+           </ul>
+       </ul>
+   </div>
+</body>
+</html>
