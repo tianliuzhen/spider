@@ -4,6 +4,10 @@ import aaa.webmagic.config.HttpClientDownloader;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.pipeline.ConsolePipeline;
+import us.codecraft.webmagic.pipeline.FilePipeline;
+import us.codecraft.webmagic.pipeline.JsonFilePipeline;
+import us.codecraft.webmagic.pipeline.ResultItemsCollectorPipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 /**
@@ -15,12 +19,29 @@ import us.codecraft.webmagic.processor.PageProcessor;
  */
 public class MyJiDongProcessor implements PageProcessor {
 
-    private Site site = Site.me();
+    private Site site = Site.me().
+            //设置编码
+            setCharset("utf-8").
+            //设置超时时间
+            setTimeOut(1000*10).
+            //设置重试时间
+            setRetryTimes(3).
+            //设置重试时间
+            setSleepTime(1000*3)
+            ;
 
     public static void main(String[] args) {
         Spider.create(new MyJiDongProcessor()).
                 setDownloader(new HttpClientDownloader()).
                 addUrl("https://www.jd.com/").
+                //默认 控制台打印
+                // addPipeline(new ConsolePipeline()).
+                //设置文件储存
+                // addPipeline(new FilePipeline("C:\\Users\\TLZ\\Desktop\\logs")).
+                // 设置 json
+                //addPipeline(new JsonFilePipeline("C:\\Users\\TLZ\\Desktop\\logs")).
+
+                thread(5).
                 run();
 
     }
