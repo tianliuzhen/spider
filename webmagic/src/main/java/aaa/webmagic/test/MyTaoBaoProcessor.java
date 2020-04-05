@@ -13,12 +13,12 @@ import us.codecraft.webmagic.processor.PageProcessor;
  * @version 1.0
  * @date 2020/4/5
  */
-public class MyProcessor implements PageProcessor {
+public class MyTaoBaoProcessor implements PageProcessor {
 
     private Site site = Site.me();
 
     public static void main(String[] args) {
-        Spider.create(new MyProcessor()).
+        Spider.create(new MyTaoBaoProcessor()).
                 setDownloader(new HttpClientDownloader()).
                 addUrl("https://www.taobao.com/?spm=a2e15.8261149.1581860521.1.144d29b4FbFZ7y").
                 run();
