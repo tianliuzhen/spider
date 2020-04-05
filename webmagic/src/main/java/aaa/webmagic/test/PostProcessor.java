@@ -7,6 +7,8 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.scheduler.BloomFilterDuplicateRemover;
+import us.codecraft.webmagic.scheduler.QueueScheduler;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 /**
@@ -25,7 +27,10 @@ public class PostProcessor implements PageProcessor {
         //使用 post 请求
         Spider.create(new MyJiDongProcessor()).
                 setDownloader(new HttpClientDownloader())
-                .addRequest(request).
+                .addRequest(request)
+                .setScheduler(
+                new QueueScheduler().  //10000000是估计的页面数量
+                        setDuplicateRemover(new BloomFilterDuplicateRemover(100000))).
                 run();
     }
 
