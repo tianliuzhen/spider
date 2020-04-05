@@ -59,5 +59,9 @@ public class DomSelectorMixTest {
         // 注：这里和步骤5 类似
         Elements select7 = doc.select("#id_first_ul > *");
         System.out.println("select6 = " + select7.text());
+        System.out.println("------------------------------------");
+        System.out.println("select6 = " + select7.html());
+        System.out.println("------------------------------------");
+        System.out.println("select6 = " + select7.outerHtml());
     }
     }
