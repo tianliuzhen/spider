@@ -35,8 +35,9 @@ public class MyProcessor implements PageProcessor {
                 page.getHtml().xpath("//div[@class='site-nav-menu-bd site-nav-menu-list']/div/a[1]"));
         //3. css+正则表达式  链式组合筛选
        page.putField("div3",page.getHtml().css("div#J_SearchTab ul ").regex(".天猫.").all());
-        //3. css+正则表达式  链式组合筛选
-        page.putField("li#J_SiteNavService  a = ",page.getHtml().css("li#J_SiteNavService  a ").regex(".天猫.").all());
+        //不去爬 淘宝的商品，因为淘宝有反扒机制必须要登录才可以
+        page.putField("获取到的links 子链接 = ",page.getHtml().$("li#J_SiteNavService  a").links().
+                regex(".*com$").all());
        //4. 获取连接
         page.addTargetRequests(page.getHtml().$("li#J_SiteNavService  a")
                 .links().regex(".*com$").all());
