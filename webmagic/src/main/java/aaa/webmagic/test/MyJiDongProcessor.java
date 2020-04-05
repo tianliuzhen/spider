@@ -28,6 +28,15 @@ public class MyJiDongProcessor implements PageProcessor {
             setRetryTimes(3).
             //设置重试时间
             setSleepTime(1000*3)
+            // 设置 cookie
+            // addCookie().
+            // 设置域名，需设置域名后.addCookie 才可生效
+            // setDomain()
+            // 添加一条 addHeader
+            //         addHeader()
+            // 设置 http 代理
+            //     setUserAgent()
+
             ;
 
     public static void main(String[] args) {
