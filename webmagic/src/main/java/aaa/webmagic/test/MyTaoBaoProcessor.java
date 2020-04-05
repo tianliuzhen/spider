@@ -32,7 +32,7 @@ public class MyTaoBaoProcessor implements PageProcessor {
         page.putField("div",page.getHtml().css("title").all());
         //2. XPath
         page.putField("div2",
-                page.getHtml().xpath("//div[@class='site-nav-menu-bd site-nav-menu-list']/div/a[1]"));
+                page.getHtml().xpath("//div[@class='site-nav-menu-bd site-nav-menu-list']/div/a[1]/text()").get());
         //3. css+正则表达式  链式组合筛选
        page.putField("div3",page.getHtml().css("div#J_SearchTab ul ").regex(".天猫.").all());
         //不去爬 淘宝的商品，因为淘宝有反扒机制必须要登录才可以

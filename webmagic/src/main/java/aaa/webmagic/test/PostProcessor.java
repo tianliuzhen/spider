@@ -44,7 +44,7 @@ public class PostProcessor implements PageProcessor {
         JobDTO jobDTO = new JobDTO();
         //使用jsOup 进行解析
         //注：这里webMagic 没做封装
-        jobDTO.setTitle(Jsoup.parse(page.getHtml().css("title").get()).text());
+        jobDTO.setTitle(page.getHtml().css("title","text").get());
 
         String str = page.getHtml().css("ul[class=nav navbar-nav navbar-right] li a").all().toString();
         String a = Jsoup.parse(str).select("a").text();

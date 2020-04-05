@@ -38,7 +38,8 @@ public class AgentProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        JobDTO jobDTO = new JobDTO();
+        String title = page.getHtml().css("title").get();
+        System.out.println("title"+title);
     }
 
     @Override
