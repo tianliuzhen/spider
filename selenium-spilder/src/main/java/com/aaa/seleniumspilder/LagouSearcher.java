@@ -6,6 +6,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +35,8 @@ public class LagouSearcher {
         WebDriver chromeDriver = null;
         try {
             service.start();
-            ChromeOptions options = new ChromeOptions();
-
+            // ChromeOptions options = new ChromeOptions();
+            // chromeDriver = new ChromeDriver(options);
             //同一个台机器上安装了多个不同版本的Chrome 时，可通过setBinary 指定待测试Chrome
             //options.setBinary ("E:/PCSoftware/Google/79/Google/Chrome/Application/");
             /**
@@ -49,7 +51,8 @@ public class LagouSearcher {
              *    Please protect ports used by ChromeDriver and related test frameworks to prevent access by malicious code.
              * 经过测试就是 浏览器位置的原因，后来下了一个 免安装的 谷歌 79.0.3945.36 版本，就可以了
              */
-            chromeDriver = new ChromeDriver(options);
+            chromeDriver = new RemoteWebDriver(service.getUrl(), DesiredCapabilities.chrome());
+
             //设置webdriver 路径, 上面已经设置了
             // System.setProperty("webdriver.chrome.dirver",webDriverPath);
 

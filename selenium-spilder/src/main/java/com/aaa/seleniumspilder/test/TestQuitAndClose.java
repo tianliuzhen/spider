@@ -1,6 +1,7 @@
 package com.aaa.seleniumspilder.test;
 
 import com.aaa.seleniumspilder.LagouSearcher;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
@@ -9,6 +10,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * description: 描述
@@ -27,32 +29,44 @@ public class TestQuitAndClose {
 
         ChromeDriverService service = new ChromeDriverService.Builder().usingDriverExecutable(
                 new File(webDriverPath)).usingAnyFreePort().build();
-        WebDriver chromeDriver = null;
         try {
             service.start();
-            System.setProperty("webdriver.chrome.dirver", webDriverPath);
-            chromeDriver = new ChromeDriver();
-            chromeDriver.get("http://sahitest.com/demo/index.htm");
-            // 打开新window1
-            ((ChromeDriver) chromeDriver).findElementByPartialLinkText("Window Open Test").click();
-            // 打开新window2
-            ((ChromeDriver) chromeDriver).findElementByPartialLinkText("Window Open Test With Title").click();
-            //查看所有window handles
-            chromeDriver.getWindowHandles();
-
-            // 关闭当前窗口，如果是当前打开的最后一个窗口，则退出浏览器
-//        chromeDriver.close();
-
-            chromeDriver.getWindowHandles();
+            URL url = service.getUrl();
+            openUrl(url,"http://sahitest.com/demo/index.htm");
 
             //退出驱动，关闭所有相关的窗口
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             Thread.sleep(2*1000);
-            chromeDriver.quit();
             service.stop();
         }
+    }
+    public static void openUrl(URL url, String urlPath) throws InterruptedException {
+        WebDriver chromeDriver = null;
+        try {
+            Thread.sleep(3000);
+            System.setProperty("webdriver.chrome.dirver", webDriverPath);
+            chromeDriver = new RemoteWebDriver(url,DesiredCapabilities.chrome());
+            chromeDriver.get(urlPath);
+            // 打开新window1
+            chromeDriver.findElement(By.linkText("Window Open Test")).click();
+            Thread.sleep(3000);
+            // 打开新window2
+            chromeDriver.findElement(By.linkText("Window Open Test With Title")).click();
+            Thread.sleep(3000);
+            //查看所有window handles
+            chromeDriver.getWindowHandles();
+            // 关闭当前窗口，如果是当前打开的最后一个窗口，则退出浏览器
+            // chromeDriver.close();
+            chromeDriver.getWindowHandles();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }finally {
+            Thread.sleep(3000);
+            chromeDriver.close();
+        }
+
 
     }
 }
