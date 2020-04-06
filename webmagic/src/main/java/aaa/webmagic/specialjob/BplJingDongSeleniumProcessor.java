@@ -41,6 +41,16 @@ public class BplJingDongSeleniumProcessor implements PageProcessor {
     private Set<Cookie> cookies=new LinkedHashSet<>();
     private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000);
 
+    /**
+     * 用来存储 爬取手机的Dto
+     */
+    private   List<JDGoodsInfo> jdGoodsInfos = Lists.newArrayList();
+    /**
+     * 用来存储 爬取分页的次数
+     */
+    private int pageCurrent = 1,pageAll = 10;
+
+
     public static void main(String[] args)  {
         BplJingDongSeleniumProcessor job = new BplJingDongSeleniumProcessor();
         job.login();
@@ -50,13 +60,13 @@ public class BplJingDongSeleniumProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        List<JDGoodsInfo> jdGoodsInfos = Lists.newArrayList();
+
         System.out.println("爬取的标题::"+page.getHtml().xpath("title/text()"));
         //获取的一个大的Div,包含商品的 价格、图片、连接 ....
         List<String> lists = page.getHtml().xpath("//div[@id='J_goodsList']/ul/li/").all();
-        // 处理方式1 、xpath
+        // 处理方式1 、xpath (不推荐 )
         xpathHanderHtml(page, jdGoodsInfos);
-        // 处理方式2、采用Jsoup (个人觉得比较好用)
+        // 处理方式2、采用Jsoup (推荐 个人觉得比较好用)
         for (String sHtml : lists) {
             String goodUtilUrl = Jsoup.parse(sHtml).select("div.p-img a").attr("href");
             String goodsTitle = Jsoup.parse(sHtml).select("div[class='p-name p-name-type-2'] a").text();
@@ -67,6 +77,11 @@ public class BplJingDongSeleniumProcessor implements PageProcessor {
             jdGoodsInfos.add(jdGoodsInfo);
         }
 
+        if (pageCurrent<=pageAll){
+            String pageUrl = "https://search.jd.com/Search?keyword=%E7%94%B5%E8%84%91&enc=utf-8&qrst=1&rt=1&stop=1&vt=2&page="+pageCurrent+"&s=52&click=0";
+            page.addTargetRequest(pageUrl);
+        }
+        pageCurrent++;
         System.out.println(jdGoodsInfos.size());
     }
 
@@ -108,8 +123,9 @@ public class BplJingDongSeleniumProcessor implements PageProcessor {
             driver = new RemoteWebDriver(service.getUrl(), DesiredCapabilities.chrome());
             driver.get("https://passport.jd.com/uc/login");
             Thread.sleep(1000*2);
-            // 默认是扫码登陆，切换账户登陆
-            driver.findElement(By.xpath("//div[@class='login-form']/div[3]/a")).click();
+            // 默认是扫码登陆，切换账户登陆，这里采用两种 xpath和jsoup均可
+            // driver.findElement(By.xpath("//div[@class='login-form']/div[3]/a")).click();
+            driver.findElement(By.cssSelector("div[class='login-tab login-tab-r'] a")).click();
             driver.findElement(By.id("loginname")).clear();
             //在******中填你的用户名
             driver.findElement(By.id("loginname")).sendKeys("15836165756");
