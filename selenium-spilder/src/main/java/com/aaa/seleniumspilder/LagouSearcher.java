@@ -4,8 +4,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -20,9 +23,16 @@ import java.util.List;
  * @date 2020/4/2
  */
 public class LagouSearcher {
+
+    private static String webDriverPath=LagouSearcher.class.getClassLoader().getResource("chromedriver.exe").getPath();
+
+
     public static void main(String[] args){
+        ChromeDriverService service = new ChromeDriverService.Builder().usingDriverExecutable(
+                new File(webDriverPath)).usingAnyFreePort().build();
         WebDriver chromeDriver = null;
         try {
+            service.start();
             ChromeOptions options = new ChromeOptions();
 
             //同一个台机器上安装了多个不同版本的Chrome 时，可通过setBinary 指定待测试Chrome
@@ -40,8 +50,8 @@ public class LagouSearcher {
              * 经过测试就是 浏览器位置的原因，后来下了一个 免安装的 谷歌 79.0.3945.36 版本，就可以了
              */
             chromeDriver = new ChromeDriver(options);
-            //设置webdriver 路径
-            System.setProperty("webdriver.chrome.dirver",LagouSearcher.class.getClassLoader().getResource("chromedriver.exe").getPath());
+            //设置webdriver 路径, 上面已经设置了
+            // System.setProperty("webdriver.chrome.dirver",webDriverPath);
 
             chromeDriver.get("https://www.lagou.com/zhaopin/Java/?labelWords=label");
             //xpath 选择元素
@@ -58,9 +68,13 @@ public class LagouSearcher {
         } catch (InterruptedException e) {
             e.printStackTrace();
 
-        }finally {
-            chromeDriver.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            //关闭窗口
             chromeDriver.quit();
+            //杀死进程
+            service.stop();
         }
 
     }
