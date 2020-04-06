@@ -4,7 +4,6 @@ import aaa.webmagic.config.HttpClientDownloader;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -14,31 +13,30 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.io.File;
-import java.util.List;
 import java.util.Set;
 
 /**
- * description: 这里访问婚庆网需要 先同过 Selenium 获取cookie 带cookie去访问
+ * description: 访问淘宝进行测试
  *
  *
  * @author 田留振(liuzhen.tian @ haoxiaec.com)
  * @version 1.0
  * @date 2020/4/6
  */
-public class BypassLoginBySeleniumProcessor implements PageProcessor {
+public class BplJiaYuanSeleniumProcessor implements PageProcessor {
 
     /**
      * 用来存储cookie信息
      */
     private Set<Cookie> cookies;
     private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000);
-    private String webDriverPath = BypassLoginBySeleniumProcessor.class.getClassLoader().getResource("chromedriver.exe").getPath();
+    private String webDriverPath = BplJiaYuanSeleniumProcessor.class.getClassLoader().getResource("chromedriver.exe").getPath();
 
     public static void main(String[] args)  {
-        BypassLoginBySeleniumProcessor job = new BypassLoginBySeleniumProcessor();
+        BplJiaYuanSeleniumProcessor job = new BplJiaYuanSeleniumProcessor();
         job.login();
         Spider.create(job).setDownloader(new HttpClientDownloader())
-                .addUrl("http://www.jiayuan.com/227057021").run();
+                .addUrl("https://item.taobao.com/item.htm?id=592936211013&ali_refid=a3_430673_1006:1105538482:N:emtiAWsF8%2Bzhhxaiwzc0Aw%3D%3D:88b6b28e0166aa7a04636a174564fab6&ali_trackid=1_88b6b28e0166aa7a04636a174564fab6&spm=a2e15.8261149.07626516002.2").run();
     }
 
     /**
@@ -53,17 +51,17 @@ public class BypassLoginBySeleniumProcessor implements PageProcessor {
         try {
             service.start();
             driver = new RemoteWebDriver(service.getUrl(), DesiredCapabilities.chrome());
-            driver.get("http://login.jiayuan.com/");
-            driver.findElement(By.id("login_email")).clear();
+            driver.get("https://login.taobao.com/");
+            driver.findElement(By.id("TPL_username_1")).clear();
             //在******中填你的用户名
-            driver.findElement(By.id("login_email")).sendKeys("15836165756");
+            driver.findElement(By.id("TPL_username_1")).sendKeys("15836165756");
             Thread.sleep(1000);
-            driver.findElement(By.id("login_password")).clear();
+            driver.findElement(By.id("TPL_password_1")).clear();
             //在*******填你密码
-            driver.findElement(By.id("login_password")).sendKeys("t13673437687");
+            driver.findElement(By.id("TPL_password_1")).sendKeys("t13673437687");
             Thread.sleep(1000);
             //模拟点击登录按钮
-            driver.findElement(By.id("login_btn")).click();
+            driver.findElement(By.id("J_SubmitStatic")).click();
             //获取cookie信息
             cookies = driver.manage().getCookies();
             System.out.println(cookies);
@@ -78,12 +76,7 @@ public class BypassLoginBySeleniumProcessor implements PageProcessor {
     }
     @Override
     public void process(Page page) {
-        //获取用户的id
-        page.putField("", page.getHtml().xpath("//div[@class='member_info_r yh']/h4/span/text()"));
-
-        //获取用户的详细信息
-        List<String> information = page.getHtml().xpath("//ul[@class='member_info_list fn-clear']//li/div[@class='fl pr']/em/text()").all();
-        page.putField("information = ", information);
+        page.putField("爬取淘宝商品详情的标题：",page.getHtml().xpath("title/text()"));
     }
 
     @Override
@@ -93,7 +86,7 @@ public class BypassLoginBySeleniumProcessor implements PageProcessor {
             site.addCookie(cookie.getName(),cookie.getValue());
         }
         return site.addHeader("User-Agent",
-                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1");
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.36 Safari/537.36");
 
     }
 }
