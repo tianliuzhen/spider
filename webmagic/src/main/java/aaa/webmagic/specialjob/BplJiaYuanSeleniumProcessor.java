@@ -13,10 +13,11 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 /**
- * description: 访问淘宝进行测试
+ * description: 这里访问婚庆网需要 先同过 Selenium 获取cookie 带cookie去访问
  *
  *
  * @author 田留振(liuzhen.tian @ haoxiaec.com)
@@ -36,7 +37,7 @@ public class BplJiaYuanSeleniumProcessor implements PageProcessor {
         BplJiaYuanSeleniumProcessor job = new BplJiaYuanSeleniumProcessor();
         job.login();
         Spider.create(job).setDownloader(new HttpClientDownloader())
-                .addUrl("https://item.taobao.com/item.htm?id=592936211013&ali_refid=a3_430673_1006:1105538482:N:emtiAWsF8%2Bzhhxaiwzc0Aw%3D%3D:88b6b28e0166aa7a04636a174564fab6&ali_trackid=1_88b6b28e0166aa7a04636a174564fab6&spm=a2e15.8261149.07626516002.2").run();
+                .addUrl("http://www.jiayuan.com/227057021").run();
     }
 
     /**
@@ -51,17 +52,17 @@ public class BplJiaYuanSeleniumProcessor implements PageProcessor {
         try {
             service.start();
             driver = new RemoteWebDriver(service.getUrl(), DesiredCapabilities.chrome());
-            driver.get("https://login.taobao.com/");
-            driver.findElement(By.id("TPL_username_1")).clear();
+            driver.get("http://login.jiayuan.com/");
+            driver.findElement(By.id("login_email")).clear();
             //在******中填你的用户名
-            driver.findElement(By.id("TPL_username_1")).sendKeys("15836165756");
+            driver.findElement(By.id("login_email")).sendKeys("15836165756");
             Thread.sleep(1000);
-            driver.findElement(By.id("TPL_password_1")).clear();
+            driver.findElement(By.id("login_password")).clear();
             //在*******填你密码
-            driver.findElement(By.id("TPL_password_1")).sendKeys("t13673437687");
+            driver.findElement(By.id("login_password")).sendKeys("t13673437687");
             Thread.sleep(1000);
             //模拟点击登录按钮
-            driver.findElement(By.id("J_SubmitStatic")).click();
+            driver.findElement(By.id("login_btn")).click();
             //获取cookie信息
             cookies = driver.manage().getCookies();
             System.out.println(cookies);
@@ -76,7 +77,12 @@ public class BplJiaYuanSeleniumProcessor implements PageProcessor {
     }
     @Override
     public void process(Page page) {
-        page.putField("爬取淘宝商品详情的标题：",page.getHtml().xpath("title/text()"));
+        //获取用户的id
+        page.putField("", page.getHtml().xpath("//div[@class='member_info_r yh']/h4/span/text()"));
+
+        //获取用户的详细信息
+        List<String> information = page.getHtml().xpath("//ul[@class='member_info_list fn-clear']//li/div[@class='fl pr']/em/text()").all();
+        page.putField("information = ", information);
     }
 
     @Override
@@ -85,6 +91,7 @@ public class BplJiaYuanSeleniumProcessor implements PageProcessor {
         for (Cookie cookie : cookies) {
             site.addCookie(cookie.getName(),cookie.getValue());
         }
+        // 设置模拟登录的浏览器的信息
         return site.addHeader("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.36 Safari/537.36");
 
