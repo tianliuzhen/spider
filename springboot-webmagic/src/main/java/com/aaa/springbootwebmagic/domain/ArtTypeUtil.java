@@ -12,8 +12,18 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class SxUtil {
-    private String sxArtTitle;
-    private String sxArtHref;
-    private String sxArtUtil;
+public class ArtTypeUtil {
+    private String href;
+    private String title;
+    private String detailHtml;
+
+    /**
+     * 生肖文章类型ID
+     */
+    private Integer sxTypeCode;
+    /**
+     * 生肖类型ID
+     */
+    private String artCode;
+
 }

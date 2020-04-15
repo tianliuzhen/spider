@@ -1,19 +1,23 @@
 package com.aaa.springbootwebmagic.domain;
 
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * @Description
+ * @Description  
  * @Author  idea
- * @Date 2020-04-14
+ * @Date 2020-04-15 
  */
-
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
 public class User  implements Serializable {
 
-	private static final long serialVersionUID =  651454540060616519L;
+	private static final long serialVersionUID =  7403143422958949407L;
 
 	/**
 	 * 主键ID

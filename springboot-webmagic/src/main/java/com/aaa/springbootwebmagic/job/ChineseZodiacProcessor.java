@@ -53,7 +53,6 @@ public class ChineseZodiacProcessor implements PageProcessor {
                     artUtil.setHref(element1.attr("href"));
                     artUtils.add(artUtil);
                 }
-
             }
             itemDTO.setList(artUtils);
             list.add(itemDTO);

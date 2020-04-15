@@ -1,9 +1,10 @@
 package com.aaa.springbootwebmagic.job;
 
 import com.aaa.springbootwebmagic.config.HttpClientDownloader;
-import com.aaa.springbootwebmagic.domain.ArtUtil;
-import com.aaa.springbootwebmagic.domain.ItemDTO;
+import com.aaa.springbootwebmagic.domain.ArtTypeUtil;
 import com.aaa.springbootwebmagic.domain.SxDTO;
+import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
+import com.aaa.springbootwebmagic.domain.SxUtil;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -12,7 +13,7 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
-
+import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 /**
@@ -24,29 +25,138 @@ import java.util.List;
  */
 public class ChineseZodiacV2Processor implements PageProcessor {
 
+    public static final String NET = "https://www.d1xz.net";
+    /**
+     * 限制分页条数
+     */
+    public static final int PAGE_LIMIT = 10;
+
     private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000);
+
+    private int i = 0;
+
+    public static  int PAGE_INT = 1,xingge = 1,zonghe =1,aiqing =1 ,jieshuo=1;
 
     public static void main(String[] args) {
         Spider.create(new ChineseZodiacV2Processor()).setDownloader(new HttpClientDownloader())
-                .addUrl("https://www.d1xz.net/sx/").run();
+                .addUrl("https://www.d1xz.net/sx/").thread(10).run();
     }
 
     @Override
     public void process(Page page) {
         List<SxDTO> sxDTOS = Lists.newArrayList();
-        List<String> all = page.getHtml().css("div[class='item_ml']").all();
-        //抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第一层url
+        List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
+        //1. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第一层url
         for (String s : all) {
-            Elements select1 = Jsoup.parse(s).select(".title ");
-            for (Element element : select1) {
-                String sxTitle = element.select("a strong").text();
-                String url = element.select("a").attr("href");
-                page.addTargetRequest("https://www.d1xz.net"+url);
+            SxDTO sxDTO = new SxDTO();
+            String sxTypeName =   Jsoup.parse(s).select(".title a").text();
+            String sxTypeHref =   Jsoup.parse(s).select(".title a").attr("href");
+            // 创建url循环进行循环抓取
+            page.addTargetRequest("https://www.d1xz.net"+sxTypeHref);
+            sxDTO.setSxTypeName(sxTypeName).setSxTypeHref(sxTypeHref);
+            // 封装内层
+            Elements select = Jsoup.parse(s).select("div[class='same_list h277 '] li");
+            List<SxUtil> sxUtils = Lists.newArrayList();
+            for (Element element : select) {
+                SxUtil sxUtil = new SxUtil();
+                sxUtil.setSxArtTitle(element.text()).setSxArtHref(element.attr("href"));
+                sxUtils.add(sxUtil);
+            }
+            Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
+            if(select1.size()>=2){
+                sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(0).attr("src"));
+            }
+            sxDTO.setCode(getCodeSwitch(sxTypeName));
+            sxDTO.setList(sxUtils);
+            sxDTOS.add(sxDTO);
+            // TODO:  待入库1
+        }
+        //2. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url
+        List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();
+        String type = page.getHtml().xpath("//div[@class='main_left fl dream_box']/div/text()").get();
+        if (StringUtils.isNotBlank(type)) {
+            List<String> allType = page.getHtml().xpath("//ul[@class='words_list_ui']/").all();
+            for (String s : allType) {
+                SxTypeListDTO sxTypeListDTO = new SxTypeListDTO();
+                sxTypeListDTO.setTitle(Jsoup.parse(s).select("li a").text());
+                sxTypeListDTO.setTitleDesc(Jsoup.parse(s).select("li p").text());
+                String url = NET + Jsoup.parse(s).select("li a").attr("href");
+                sxTypeListDTO.setHref(url);
+                //todo  ===》   创建url循环进行循环抓取 文章详情
+                page.addTargetRequest(url);
+                sxTypeListDTO.setCode(getCodeSwitch(type));
+                sxTypeListDTOS.add(sxTypeListDTO);
+            }
+            // 截取 url 的 数字作为id eg：/sx/zonghe/index_3.aspx ==》 获取 zonghe
+            String nextPageType = page.getHtml().xpath("//span[@class='next']/a/@href").regex("(?<=sx/).*(?=/index)").get();
+            if(geTypeSwitch(nextPageType) < PAGE_LIMIT){
+                // todo   ===》  分页获取文章列表
+                page.addTargetRequest("https://www.d1xz.net/sx/"+nextPageType+"/index_"+ geTypeSwitch(nextPageType) +".aspx");
             }
         }
-       //抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url
-        System.out.println(page.getHtml().xpath("//div[@class='main_left fl dream_box']/div/text()"));
 
+        //3. 存入文章类型详情
+        List<String> p = page.getHtml().css("div[class='art_con_left']").all();
+        if(p.size()>0){
+            // 截取 url 的 数字作为id eg：https://www.d1xz.net/sx/zonghe/art361019.aspx ==》 获取 361019
+            String artId = page.getUrl().regex("(?<=art).*(?=\\.)").get();
+            List<ArtTypeUtil> artTypeUtils = Lists.newArrayList();
+            String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
+            ArtTypeUtil artTypeUtil = new ArtTypeUtil();
+            artTypeUtil.setSxTypeCode(getCodeSwitch(code)).setArtCode(artId);
+            artTypeUtil.setDetailHtml(p.get(0));
+            artTypeUtils.add(artTypeUtil);
+
+            // TODO:  待入库2
+        }
+        System.out.println("总共发起url = " + ++i);
+
+    }
+
+    public Integer geTypeSwitch(String str){
+        int code = 1;
+        switch(str){
+            case "xingge" :
+                xingge ++;
+                code = xingge;
+                break;
+            case "zonghe" :
+                zonghe ++;
+                code = zonghe;
+                break;
+            case "aiqing" :
+                aiqing ++;
+                code = aiqing;
+                break;
+            case "jieshuo":
+                jieshuo ++;
+                code = jieshuo;
+                break;
+            default : //可选
+                //语句
+        }
+        return code;
+    }
+
+    public Integer getCodeSwitch(String str){
+        Integer code = 0;
+        switch(str){
+            case "生肖运势" :
+                code = 1;
+                break;
+            case "生肖性格" :
+                code = 2;
+                break;
+            case "生肖爱情" :
+                code = 3;
+                break;
+            case "生肖解说":
+                code = 3;
+                break;
+            default : //可选
+                //语句
+        }
+        return code;
     }
 
     @Override
