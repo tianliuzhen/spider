@@ -1,12 +1,15 @@
 package aaa.webmagic.testjob;
 
 import aaa.webmagic.config.HttpClientDownloader;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.scheduler.BloomFilterDuplicateRemover;
 import us.codecraft.webmagic.scheduler.QueueScheduler;
+import us.codecraft.webmagic.scheduler.RedisScheduler;
 
 /**
  * description: 使用webmagic 爬 京东
@@ -38,6 +41,14 @@ public class MyUtilProcessor implements PageProcessor {
             ;
 
     public static void main(String[] args) {
+        // 设置 redis 连接池
+     /**
+      *  public JedisPool(
+                 GenericObjectPoolConfig poolConfig, String host, int port, int timeout, String password, int database, String clientName)
+    */
+     JedisPool jedisPool = new JedisPool(
+             new GenericObjectPoolConfig(), "127.0.0.1", 6379, 2000, (String)null, 4, (String)null);
+
         Spider.create(new MyUtilProcessor()).
                 setDownloader(new HttpClientDownloader()).
                 addUrl("https://www.jd.com/").
@@ -49,7 +60,9 @@ public class MyUtilProcessor implements PageProcessor {
                 //addPipeline(new JsonFilePipeline("C:\\Users\\TLZ\\Desktop\\logs"))
                 //设置布隆过滤器  10000000是估计的页面数量
                  setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(100000))).
-                thread(5).
+
+                setScheduler(new RedisScheduler(jedisPool)).
+                        thread(5).
                 run();
 
     }
