@@ -5,6 +5,8 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
+import us.codecraft.webmagic.scheduler.BloomFilterDuplicateRemover;
+import us.codecraft.webmagic.scheduler.QueueScheduler;
 
 /**
  * description: 使用webmagic 爬 京东
@@ -13,7 +15,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  * @version 1.0
  * @date 2020/4/5
  */
-public class MyJiDongProcessor implements PageProcessor {
+public class MyUtilProcessor implements PageProcessor {
 
     private Site site = Site.me().
             //设置编码
@@ -36,7 +38,7 @@ public class MyJiDongProcessor implements PageProcessor {
             ;
 
     public static void main(String[] args) {
-        Spider.create(new MyJiDongProcessor()).
+        Spider.create(new MyUtilProcessor()).
                 setDownloader(new HttpClientDownloader()).
                 addUrl("https://www.jd.com/").
                 //默认 控制台打印
@@ -44,8 +46,9 @@ public class MyJiDongProcessor implements PageProcessor {
                 //设置文件储存
                 // addPipeline(new FilePipeline("C:\\Users\\TLZ\\Desktop\\logs")).
                 // 设置 json
-                //addPipeline(new JsonFilePipeline("C:\\Users\\TLZ\\Desktop\\logs")).
-
+                //addPipeline(new JsonFilePipeline("C:\\Users\\TLZ\\Desktop\\logs"))
+                //设置布隆过滤器  10000000是估计的页面数量
+                 setScheduler(new QueueScheduler().setDuplicateRemover(new BloomFilterDuplicateRemover(100000))).
                 thread(5).
                 run();
 

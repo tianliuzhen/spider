@@ -1,10 +1,7 @@
 package com.aaa.springbootwebmagic.job;
 
 import com.aaa.springbootwebmagic.config.HttpClientDownloader;
-import com.aaa.springbootwebmagic.domain.ArtTypeUtil;
-import com.aaa.springbootwebmagic.domain.SxDTO;
-import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
-import com.aaa.springbootwebmagic.domain.SxUtil;
+import com.aaa.springbootwebmagic.domain.*;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -45,8 +42,19 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     @Override
     public void process(Page page) {
         List<SxDTO> sxDTOS = Lists.newArrayList();
-        List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
-        //1. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第一层url
+
+        //1.抓取首页
+        List<String> mainTitle = page.getHtml().css("div[class='slider-wrapper'] a p", "text").all();
+        List<String> mainUrl = page.getHtml().xpath("div[@class='slider-wrapper']/a/img/@src").all();
+        SxIndex sxIndex = new SxIndex();
+        if(mainTitle.size()>0 && mainUrl.size()>0){
+            sxIndex.setSrcTitle1(mainTitle.get(0)).setSrcTitle2(mainTitle.get(1)).setSrcTitle3(mainTitle.get(2));
+            sxIndex.setSrcUrl1(mainUrl.get(0)).setSrcUrl2(mainUrl.get(1)).setSrcUrl3(mainUrl.get(2));
+        }
+
+      List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
+
+        //2. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url （文章列表）
         for (String s : all) {
             SxDTO sxDTO = new SxDTO();
             String sxTypeName =   Jsoup.parse(s).select(".title a").text();
@@ -71,7 +79,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             sxDTOS.add(sxDTO);
             // TODO:  待入库1
         }
-        //2. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url
+        //3. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第三层url  (文章详情)
         List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();
         String type = page.getHtml().xpath("//div[@class='main_left fl dream_box']/div/text()").get();
         if (StringUtils.isNotBlank(type)) {
@@ -104,6 +112,8 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
             ArtTypeUtil artTypeUtil = new ArtTypeUtil();
             artTypeUtil.setSxTypeCode(getCodeSwitch(code)).setArtCode(artId);
+            artTypeUtil.setHref(page.getUrl().toString());
+            artTypeUtil.setTitle(Jsoup.parse(p.get(0)).select(".art_detail_title").text());
             artTypeUtil.setDetailHtml(p.get(0));
             artTypeUtils.add(artTypeUtil);
 
