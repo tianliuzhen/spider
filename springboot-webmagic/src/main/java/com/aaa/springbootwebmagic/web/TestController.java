@@ -1,7 +1,8 @@
 package com.aaa.springbootwebmagic.web;
 
-import com.aaa.springbootwebmagic.domain.User;
-import com.aaa.springbootwebmagic.service.UserMapper;
+import com.aaa.springbootwebmagic.domain.entity.User;
+import com.aaa.springbootwebmagic.job.ChineseZodiacV2Processor;
+import com.aaa.springbootwebmagic.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +22,16 @@ public class TestController {
     @Autowired
     UserMapper userMapper;
 
-    @RequestMapping
+    @Autowired
+    ChineseZodiacV2Processor chineseZodiacV2Processor;
+
+    @RequestMapping(value = "/chineseZodiacV2Processor")
+    public void chineseZodiacV2Processor(){
+
+        chineseZodiacV2Processor.main();
+    }
+
+    @RequestMapping(value = "/getUserListAll")
     public List<User> getUserListAll(){
 
         return userMapper.selectList(null);

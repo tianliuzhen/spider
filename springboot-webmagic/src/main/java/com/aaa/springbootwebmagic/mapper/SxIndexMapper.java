@@ -1,8 +1,7 @@
-package com.aaa.springbootwebmagic.service;
+package com.aaa.springbootwebmagic.mapper;
 
-import com.aaa.springbootwebmagic.domain.User;
+import com.aaa.springbootwebmagic.domain.entity.SxIndex;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -10,8 +9,8 @@ import org.springframework.stereotype.Repository;
  *
  * @author 田留振(liuzhen.tian @ haoxiaec.com)
  * @version 1.0
- * @date 2020/4/14
+ * @date 2020/4/16
  */
 @Repository
-public interface UserMapper extends BaseMapper<User> {
+public interface SxIndexMapper extends BaseMapper<SxIndex> {
 }

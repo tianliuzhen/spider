@@ -2,10 +2,16 @@ package com.aaa.springbootwebmagic.job;
 
 import com.aaa.springbootwebmagic.config.HttpClientDownloader;
 import com.aaa.springbootwebmagic.domain.*;
+import com.aaa.springbootwebmagic.domain.entity.SxIndex;
+import com.aaa.springbootwebmagic.mapper.SxIndexMapper;
+import com.alibaba.fastjson.JSON;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
@@ -20,40 +26,57 @@ import java.util.List;
  * @version 1.0
  * @date 2020/4/14
  */
+@Service
 public class ChineseZodiacV2Processor implements PageProcessor {
 
     public static final String NET = "https://www.d1xz.net";
     /**
      * 限制分页条数
      */
-    public static final int PAGE_LIMIT = 10;
+    public static final int PAGE_LIMIT = 2;
 
-    private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000);
+    private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000).setCharset("utf-8");
 
     private int i = 0;
 
     public static  int PAGE_INT = 1,xingge = 1,zonghe =1,aiqing =1 ,jieshuo=1;
 
-    public static void main(String[] args) {
+    @Autowired
+    private SxPipeline sxPipeline;
+
+    /**
+     *    fixedDelay 每隔几秒执行一次
+     *    initialDelay 启动后执行
+     * @return void
+     */
+    public  void main() {
         Spider.create(new ChineseZodiacV2Processor()).setDownloader(new HttpClientDownloader())
-                .addUrl("https://www.d1xz.net/sx/").thread(10).run();
+                .addUrl("https://www.d1xz.net/sx/")
+                .addPipeline(this.sxPipeline)
+                .thread(10).run();
     }
+
 
     @Override
     public void process(Page page) {
-        List<SxDTO> sxDTOS = Lists.newArrayList();
 
         //1.抓取首页
         List<String> mainTitle = page.getHtml().css("div[class='slider-wrapper'] a p", "text").all();
         List<String> mainUrl = page.getHtml().xpath("div[@class='slider-wrapper']/a/img/@src").all();
-        SxIndex sxIndex = new SxIndex();
+        List<SxIndexRoll> list=Lists.newArrayList();
         if(mainTitle.size()>0 && mainUrl.size()>0){
-            sxIndex.setSrcTitle1(mainTitle.get(0)).setSrcTitle2(mainTitle.get(1)).setSrcTitle3(mainTitle.get(2));
-            sxIndex.setSrcUrl1(mainUrl.get(0)).setSrcUrl2(mainUrl.get(1)).setSrcUrl3(mainUrl.get(2));
+            for (int i1 = 0; i1 < mainTitle.size(); i1++) {
+                SxIndexRoll sr = new SxIndexRoll();
+                sr.setSrcTitle(mainTitle.get(i1));
+                sr.setSrcUrl(mainUrl.get(i1));
+                list.add(sr);
+            }
+            // 放入自定义管道 1
+            page.putField("entity-sxindex",JSON.toJSONString(list));
         }
 
+      List<SxDTO> sxDTOS = Lists.newArrayList();
       List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
-
         //2. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url （文章列表）
         for (String s : all) {
             SxDTO sxDTO = new SxDTO();
@@ -77,7 +100,10 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             sxDTO.setCode(getCodeSwitch(sxTypeName));
             sxDTO.setList(sxUtils);
             sxDTOS.add(sxDTO);
-            // TODO:  待入库1
+            // 放入自定义管道 2
+        }
+        if (sxDTOS.size()>0) {
+            page.putField("sxDTOS",sxDTOS);
         }
         //3. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第三层url  (文章详情)
         List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();

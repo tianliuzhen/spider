@@ -1,4 +1,4 @@
-package com.aaa.springbootwebmagic.domain;
+package com.aaa.springbootwebmagic.domain.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,9 +7,9 @@ import lombok.experimental.Accessors;
 import java.io.Serializable;
 
 /**
- * @Description  
+ * @Description
  * @Author  idea
- * @Date 2020-04-15 
+ * @Date 2020-04-15
  */
 @Data
 @NoArgsConstructor
