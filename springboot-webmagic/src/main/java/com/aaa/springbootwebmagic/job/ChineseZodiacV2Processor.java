@@ -17,7 +17,11 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * description: 采集十二生效
@@ -82,7 +86,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             SxDTO sxDTO = new SxDTO();
             String sxTypeName =   Jsoup.parse(s).select(".title a").text();
             String sxTypeHref =   Jsoup.parse(s).select(".title a").attr("href");
-            // 创建url循环进行循环抓取
+            //todo  ===》   创建url循环进行循环抓取
             page.addTargetRequest("https://www.d1xz.net"+sxTypeHref);
             sxDTO.setSxTypeName(sxTypeName).setSxTypeHref(sxTypeHref);
             // 封装内层
@@ -116,9 +120,10 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sxTypeListDTO.setTitleDesc(Jsoup.parse(s).select("li p").text());
                 String url = NET + Jsoup.parse(s).select("li a").attr("href");
                 sxTypeListDTO.setHref(url);
+                sxTypeListDTO.setArtCode(getUrlArtId(url));
                 //todo  ===》   创建url循环进行循环抓取 文章详情
                 page.addTargetRequest(url);
-                sxTypeListDTO.setCode(getCodeSwitch(type));
+                sxTypeListDTO.setSxTypeCode(getCodeSwitch(type));
                 sxTypeListDTOS.add(sxTypeListDTO);
             }
             // 截取 url 的 数字作为id eg：/sx/zonghe/index_3.aspx ==》 获取 zonghe
@@ -128,7 +133,10 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 page.addTargetRequest("https://www.d1xz.net/sx/"+nextPageType+"/index_"+ geTypeSwitch(nextPageType) +".aspx");
             }
         }
-
+        // 放入自定义管道 3
+        if (sxTypeListDTOS.size()>0) {
+            page.putField("sxTypeListDTOS",sxTypeListDTOS);
+        }
         //3. 存入文章类型详情
         List<String> p = page.getHtml().css("div[class='art_con_left']").all();
         if(p.size()>0){
@@ -142,13 +150,32 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             artTypeUtil.setTitle(Jsoup.parse(p.get(0)).select(".art_detail_title").text());
             artTypeUtil.setDetailHtml(p.get(0));
             artTypeUtils.add(artTypeUtil);
-
+            if (artTypeUtils.size()>0) {
+                page.putField("artTypeUtils",artTypeUtils);
+            }
             // TODO:  待入库2
         }
         System.out.println("总共发起url = " + ++i);
 
     }
+    public  int getUrlArtId(String args) {
+        String str = args;
+        String reg = "(?<=art).*(?=\\.)";//定义正则表达式
 
+        Pattern patten = Pattern.compile(reg);//编译正则表达式
+        Matcher matcher = patten.matcher(str);// 指定要匹配的字符串
+
+        List<String> matchStrs = new ArrayList<>();
+
+        while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
+            matchStrs.add(matcher.group());//获取当前匹配的值
+        }
+        int result = 0;
+        for (int i = 0; i < matchStrs.size(); i++) {
+            result = Integer.parseInt(matchStrs.get(i));
+        }
+        return result;
+    }
     public Integer geTypeSwitch(String str){
         int code = 1;
         switch(str){
@@ -187,7 +214,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 code = 3;
                 break;
             case "生肖解说":
-                code = 3;
+                code = 4;
                 break;
             default : //可选
                 //语句

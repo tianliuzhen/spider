@@ -1,4 +1,4 @@
-package com.aaa.springbootwebmagic.domain;
+package com.aaa.springbootwebmagic.domain.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class SxTypeListDTO {
+public class SxTypeList {
     /**
      * 类型标题
      */
@@ -34,5 +34,5 @@ public class SxTypeListDTO {
     /**
      * 生肖文章类型ID
      */
-    private Integer ArtCode;
+    private Integer artCode;
 }

@@ -1,12 +1,16 @@
 package com.aaa.springbootwebmagic.job;
 
+import com.aaa.springbootwebmagic.domain.ArtTypeUtil;
 import com.aaa.springbootwebmagic.domain.SxDTO;
+import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
+import com.aaa.springbootwebmagic.domain.entity.ArtTypeInfo;
 import com.aaa.springbootwebmagic.domain.entity.SxIndex;
 import com.aaa.springbootwebmagic.domain.entity.SxType;
-import com.aaa.springbootwebmagic.mapper.SxIndexMapper;
-import com.aaa.springbootwebmagic.mapper.SxTypeMapper;
-import com.aaa.springbootwebmagic.mapper.UserMapper;
+import com.aaa.springbootwebmagic.domain.entity.SxTypeList;
+import com.aaa.springbootwebmagic.mapper.*;
 import com.alibaba.fastjson.JSON;
+import org.assertj.core.util.Lists;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
@@ -36,19 +40,22 @@ public class SxPipeline implements Pipeline {
     private SxIndexMapper sxIndexMapper;
     @Autowired
     private SxTypeMapper sxTypeMapper;
-
+    @Autowired
+    private SxTypeListMapper sxTypeListMapper;
+    @Autowired
+    private ArtTypeInfoMapper artTypeInfoMapper;
     @Override
     public void process(ResultItems resultItems, Task task) {
         System.out.println("get page: " + resultItems.getRequest().getUrl());
-        if(resultItems.get("entity-sxindex")!=null){
-            SxIndex sxIndex =new SxIndex() ;
+        if (resultItems.get("entity-sxindex") != null) {
+            SxIndex sxIndex = new SxIndex();
             sxIndex.setSrcRoll(resultItems.get("entity-sxindex"));
             sxIndexMapper.insert(sxIndex);
         }
-        if(resultItems.get("sxDTOS")!=null){
-            List<SxDTO> sxDTOS= resultItems.get("sxDTOS");
+        if (resultItems.get("sxDTOS") != null) {
+            List<SxDTO> sxDTOS = resultItems.get("sxDTOS");
             for (SxDTO sxDTO : sxDTOS) {
-                SxType sxType=new SxType();
+                SxType sxType = new SxType();
                 sxType.setCode(sxDTO.getCode());
                 sxType.setImgSrc1(sxDTO.getImgSrc1());
                 sxType.setImgSrc2(sxDTO.getImgSrc2());
@@ -56,9 +63,25 @@ public class SxPipeline implements Pipeline {
                 sxType.setSxTypeHref(sxDTO.getSxTypeHref());
                 sxType.setList(JSON.toJSONString(sxDTO.getList()));
                 sxTypeMapper.insert(sxType);
+
+            }
+        }
+        if (resultItems.get("sxTypeListDTOS") != null) {
+            List<SxTypeListDTO> sxTypeListDTOS = resultItems.get("sxTypeListDTOS");
+            for (SxTypeListDTO sxTypeListDTO : sxTypeListDTOS) {
+                SxTypeList sxTypeList = new SxTypeList();
+                BeanUtils.copyProperties(sxTypeListDTO,sxTypeList);
+                sxTypeListMapper.insert(sxTypeList);
             }
 
-
+        }
+        if (resultItems.get("artTypeUtils")!=null) {
+            List<ArtTypeUtil> artTypeUtils = resultItems.get("artTypeUtils");
+            for (ArtTypeUtil artTypeUtil : artTypeUtils) {
+                ArtTypeInfo artTypeInfo = new ArtTypeInfo();
+                BeanUtils.copyProperties(artTypeUtil,artTypeInfo);
+                artTypeInfoMapper.insert(artTypeInfo);
+            }
         }
 
     }
