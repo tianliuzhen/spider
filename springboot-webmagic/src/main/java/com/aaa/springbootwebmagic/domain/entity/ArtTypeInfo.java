@@ -1,7 +1,9 @@
 package com.aaa.springbootwebmagic.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 /**
  * description: 描述
@@ -12,6 +14,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
+@TableName("sx_art_type_info")
 public class ArtTypeInfo {
     private String href;
     private String title;

@@ -20,8 +20,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for art_type_info
 -- ----------------------------
-DROP TABLE IF EXISTS `art_type_info`;
-CREATE TABLE `art_type_info`  (
+DROP TABLE IF EXISTS `sx_art_type_info`;
+CREATE TABLE `sx_art_type_info`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `href` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,

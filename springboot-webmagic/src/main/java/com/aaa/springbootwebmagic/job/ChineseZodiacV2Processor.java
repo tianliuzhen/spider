@@ -37,9 +37,10 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     /**
      * 限制分页条数
      */
-    public static final int PAGE_LIMIT = 2;
+    public static final int PAGE_LIMIT = 10;
 
-    private Site site= Site.me().setRetryTimes(3).setSleepTime(0).setTimeOut(3000).setCharset("utf-8");
+    private Site site= Site.me().setRetryTimes(5).setSleepTime(100).setTimeOut(5000).setCharset("utf-8")
+            .setCycleRetryTimes(2);
 
     private int i = 0;
 
@@ -65,51 +66,38 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     public void process(Page page) {
 
         //1.抓取首页
-        List<String> mainTitle = page.getHtml().css("div[class='slider-wrapper'] a p", "text").all();
-        List<String> mainUrl = page.getHtml().xpath("div[@class='slider-wrapper']/a/img/@src").all();
-        List<SxIndexRoll> list=Lists.newArrayList();
-        if(mainTitle.size()>0 && mainUrl.size()>0){
-            for (int i1 = 0; i1 < mainTitle.size(); i1++) {
-                SxIndexRoll sr = new SxIndexRoll();
-                sr.setSrcTitle(mainTitle.get(i1));
-                sr.setSrcUrl(mainUrl.get(i1));
-                list.add(sr);
-            }
-            // 放入自定义管道 1
-            page.putField("entity-sxindex",JSON.toJSONString(list));
-        }
-
-      List<SxDTO> sxDTOS = Lists.newArrayList();
-      List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
+        crawlIndex_1(page);
         //2. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第二层url （文章列表）
-        for (String s : all) {
-            SxDTO sxDTO = new SxDTO();
-            String sxTypeName =   Jsoup.parse(s).select(".title a").text();
-            String sxTypeHref =   Jsoup.parse(s).select(".title a").attr("href");
-            //todo  ===》   创建url循环进行循环抓取
-            page.addTargetRequest("https://www.d1xz.net"+sxTypeHref);
-            sxDTO.setSxTypeName(sxTypeName).setSxTypeHref(sxTypeHref);
-            // 封装内层
-            Elements select = Jsoup.parse(s).select("div[class='same_list h277 '] li");
-            List<SxUtil> sxUtils = Lists.newArrayList();
-            for (Element element : select) {
-                SxUtil sxUtil = new SxUtil();
-                sxUtil.setSxArtTitle(element.text()).setSxArtHref(element.attr("href"));
-                sxUtils.add(sxUtil);
-            }
-            Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
-            if(select1.size()>=2){
-                sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(0).attr("src"));
-            }
-            sxDTO.setCode(getCodeSwitch(sxTypeName));
-            sxDTO.setList(sxUtils);
-            sxDTOS.add(sxDTO);
-            // 放入自定义管道 2
-        }
-        if (sxDTOS.size()>0) {
-            page.putField("sxDTOS",sxDTOS);
-        }
+        crawlIndex_2(page);
         //3. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第三层url  (文章详情)
+        crawlIndex_3(page);
+        //4. 存入文章类型详情
+        crawlIndex_4(page);
+        System.out.println("总共发起url = " + ++i);
+
+    }
+
+    private void crawlIndex_4(Page page) {
+        List<String> p = page.getHtml().css("div[class='art_con_left']").all();
+        if(p.size()>0){
+            // 截取 url 的 数字作为id eg：https://www.d1xz.net/sx/zonghe/art361019.aspx ==》 获取 361019
+            String artId = page.getUrl().regex("(?<=art).*(?=\\.)").get();
+            List<ArtTypeUtil> artTypeUtils = Lists.newArrayList();
+            String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
+            ArtTypeUtil artTypeUtil = new ArtTypeUtil();
+            artTypeUtil.setSxTypeCode(getCodeSwitch(code)).setArtCode(artId);
+            artTypeUtil.setHref(page.getUrl().toString());
+            artTypeUtil.setTitle(Jsoup.parse(p.get(0)).select(".art_detail_title").text());
+            artTypeUtil.setDetailHtml(p.get(0));
+            artTypeUtils.add(artTypeUtil);
+            if (artTypeUtils.size()>0) {
+                page.putField("artTypeUtils",artTypeUtils);
+            }
+            // TODO:  待入库2
+        }
+    }
+
+    private void crawlIndex_3(Page page) {
         List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();
         String type = page.getHtml().xpath("//div[@class='main_left fl dream_box']/div/text()").get();
         if (StringUtils.isNotBlank(type)) {
@@ -137,27 +125,61 @@ public class ChineseZodiacV2Processor implements PageProcessor {
         if (sxTypeListDTOS.size()>0) {
             page.putField("sxTypeListDTOS",sxTypeListDTOS);
         }
-        //3. 存入文章类型详情
-        List<String> p = page.getHtml().css("div[class='art_con_left']").all();
-        if(p.size()>0){
-            // 截取 url 的 数字作为id eg：https://www.d1xz.net/sx/zonghe/art361019.aspx ==》 获取 361019
-            String artId = page.getUrl().regex("(?<=art).*(?=\\.)").get();
-            List<ArtTypeUtil> artTypeUtils = Lists.newArrayList();
-            String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
-            ArtTypeUtil artTypeUtil = new ArtTypeUtil();
-            artTypeUtil.setSxTypeCode(getCodeSwitch(code)).setArtCode(artId);
-            artTypeUtil.setHref(page.getUrl().toString());
-            artTypeUtil.setTitle(Jsoup.parse(p.get(0)).select(".art_detail_title").text());
-            artTypeUtil.setDetailHtml(p.get(0));
-            artTypeUtils.add(artTypeUtil);
-            if (artTypeUtils.size()>0) {
-                page.putField("artTypeUtils",artTypeUtils);
-            }
-            // TODO:  待入库2
-        }
-        System.out.println("总共发起url = " + ++i);
-
     }
+
+    private void crawlIndex_2(Page page) {
+        List<SxDTO> sxDTOS = Lists.newArrayList();
+        List<String> all = page.getHtml().css("div[class='item_ml'] > div").all();
+
+        for (String s : all) {
+            SxDTO sxDTO = new SxDTO();
+            String sxTypeName =   Jsoup.parse(s).select(".title a").text();
+            String sxTypeHref =   Jsoup.parse(s).select(".title a").attr("href");
+            //todo  ===》   创建url循环进行循环抓取
+            page.addTargetRequest("https://www.d1xz.net"+sxTypeHref);
+            sxDTO.setSxTypeName(sxTypeName).setSxTypeHref(sxTypeHref);
+            // 封装内层
+            Elements select = Jsoup.parse(s).select("div[class='same_list h277 '] li");
+            List<SxUtil> sxUtils = Lists.newArrayList();
+            for (Element element : select) {
+                SxUtil sxUtil = new SxUtil();
+                sxUtil.setSxArtTitle(element.text()).setSxArtHref(element.attr("href"));
+                sxUtils.add(sxUtil);
+            }
+            Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
+            if(select1.size()>=2){
+                sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(0).attr("src"));
+            }
+            sxDTO.setCode(getCodeSwitch(sxTypeName.trim()));
+            sxDTO.setList(sxUtils);
+            sxDTOS.add(sxDTO);
+            // 放入自定义管道 2
+        }
+        if (sxDTOS.size()>0) {
+            page.putField("sxDTOS",sxDTOS);
+        }
+    }
+
+    private void crawlIndex_1(Page page) {
+        List<String> mainTitle = page.getHtml().css("div[class='slider-wrapper'] a p", "text").all();
+        List<String> mainUrl = page.getHtml().xpath("div[@class='slider-wrapper']/a/img/@src").all();
+        List<String> allSrc = page.getHtml().xpath("div[@class='slider-wrapper']/a/@href").all();
+        List<SxIndexRoll> list= Lists.newArrayList();
+        if(mainTitle.size()>0 && mainUrl.size()>0 &&allSrc.size()>0){
+            for (int i1 = 0; i1 < mainTitle.size(); i1++) {
+                SxIndexRoll sr = new SxIndexRoll();
+                sr.setSrcTitle(mainTitle.get(i1));
+                sr.setSrcUrl(mainUrl.get(i1));
+                //todo  ===》   创建url循环进行循环抓取
+                page.addTargetRequest(allSrc.get(i1));
+                sr.setArtCode(getUrlArtId(allSrc.get(i1)));
+                list.add(sr);
+            }
+            // 放入自定义管道 1
+            page.putField("entity-sxindex", JSON.toJSONString(list));
+        }
+    }
+
     public  int getUrlArtId(String args) {
         String str = args;
         String reg = "(?<=art).*(?=\\.)";//定义正则表达式
