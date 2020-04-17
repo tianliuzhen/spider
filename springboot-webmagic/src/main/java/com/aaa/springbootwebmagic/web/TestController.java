@@ -1,6 +1,7 @@
 package com.aaa.springbootwebmagic.web;
 
 import com.aaa.springbootwebmagic.domain.entity.User;
+import com.aaa.springbootwebmagic.job.ChineseZodiacV1Processor;
 import com.aaa.springbootwebmagic.job.ChineseZodiacV2Processor;
 import com.aaa.springbootwebmagic.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,14 @@ public class TestController {
 
     @Autowired
     ChineseZodiacV2Processor chineseZodiacV2Processor;
+    @Autowired
+    ChineseZodiacV1Processor chineseZodiacV1Processor;
 
     @RequestMapping(value = "/chineseZodiacV2Processor")
     public void chineseZodiacV2Processor(){
 
-        chineseZodiacV2Processor.main();
+//        chineseZodiacV2Processor.main();
+        chineseZodiacV1Processor.main();
     }
 
     @RequestMapping(value = "/getUserListAll")

@@ -3,10 +3,7 @@ package com.aaa.springbootwebmagic.job;
 import com.aaa.springbootwebmagic.domain.ArtTypeUtil;
 import com.aaa.springbootwebmagic.domain.SxDTO;
 import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
-import com.aaa.springbootwebmagic.domain.entity.ArtTypeInfo;
-import com.aaa.springbootwebmagic.domain.entity.SxIndex;
-import com.aaa.springbootwebmagic.domain.entity.SxType;
-import com.aaa.springbootwebmagic.domain.entity.SxTypeList;
+import com.aaa.springbootwebmagic.domain.entity.*;
 import com.aaa.springbootwebmagic.mapper.*;
 import com.alibaba.fastjson.JSON;
 import org.assertj.core.util.Lists;
@@ -44,6 +41,9 @@ public class SxPipeline implements Pipeline {
     private SxTypeListMapper sxTypeListMapper;
     @Autowired
     private ArtTypeInfoMapper artTypeInfoMapper;
+    @Autowired
+    private SxMain12Mapper sxMain12Mapper;
+
     @Override
     public void process(ResultItems resultItems, Task task) {
         System.out.println("get page: " + resultItems.getRequest().getUrl());
@@ -83,6 +83,9 @@ public class SxPipeline implements Pipeline {
                 artTypeInfoMapper.insert(artTypeInfo);
             }
         }
-
+        if (resultItems.get("sx_12_main")!=null) {
+            SxMain12 sxMain12 =   resultItems.get("sx_12_main");
+            sxMain12Mapper.insert(sxMain12);
+        }
     }
 }

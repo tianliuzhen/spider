@@ -37,7 +37,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     /**
      * 限制分页条数
      */
-    public static final int PAGE_LIMIT = 10;
+    public static final int PAGE_LIMIT = 2;
 
     private Site site= Site.me().setRetryTimes(5).setSleepTime(100).setTimeOut(5000).setCharset("utf-8")
             .setCycleRetryTimes(2);
