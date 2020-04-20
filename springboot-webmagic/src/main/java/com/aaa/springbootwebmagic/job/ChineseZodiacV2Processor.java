@@ -4,6 +4,7 @@ import com.aaa.springbootwebmagic.config.HttpClientDownloader;
 import com.aaa.springbootwebmagic.domain.*;
 import com.aaa.springbootwebmagic.domain.entity.SxIndex;
 import com.aaa.springbootwebmagic.mapper.SxIndexMapper;
+import com.aaa.springbootwebmagic.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
@@ -109,7 +110,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sxTypeListDTO.setTitleDesc(Jsoup.parse(s).select("li p").text());
                 String url = NET + Jsoup.parse(s).select("li a").attr("href");
                 sxTypeListDTO.setHref(url);
-                sxTypeListDTO.setArtCode(getUrlArtId(url));
+                sxTypeListDTO.setArtCode(StringUtil.getUrlArtId(url));
                 //todo  ===》   创建url循环进行循环抓取 文章详情
                 page.addTargetRequest(url);
                 sxTypeListDTO.setSxTypeCode(getCodeSwitch(type));
@@ -144,8 +145,9 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             List<SxUtil> sxUtils = Lists.newArrayList();
             for (Element element : select) {
                 SxUtil sxUtil = new SxUtil();
-                sxUtil.setSxArtTitle(element.text()).setSxArtHref(element.attr("href"));
+                sxUtil.setSxArtTitle(element.text()).setSxArtHref(StringUtil.getUrlArtId(element.select("a").attr("href")));
                 sxUtils.add(sxUtil);
+                page.addTargetRequest(NET+element.select("a").attr("href"));
             }
             Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
             String href = Jsoup.parse(s).select("ul[class='pic_ui fl'] li a").attr("href");
@@ -182,7 +184,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sr.setSrcUrl(mainUrl.get(i1));
                 //todo  ===》   创建url循环进行循环抓取
                 page.addTargetRequest(allSrc.get(i1));
-                sr.setArtCode(getUrlArtId(allSrc.get(i1)));
+                sr.setArtCode(StringUtil.getUrlArtId(allSrc.get(i1)));
                 list.add(sr);
             }
             // 放入自定义管道 1
@@ -190,24 +192,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
         }
     }
 
-    public  int getUrlArtId(String args) {
-        String str = args;
-        String reg = "(?<=art).*(?=\\.)";//定义正则表达式
 
-        Pattern patten = Pattern.compile(reg);//编译正则表达式
-        Matcher matcher = patten.matcher(str);// 指定要匹配的字符串
-
-        List<String> matchStrs = new ArrayList<>();
-
-        while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
-            matchStrs.add(matcher.group());//获取当前匹配的值
-        }
-        int result = 0;
-        for (int i = 0; i < matchStrs.size(); i++) {
-            result = Integer.parseInt(matchStrs.get(i));
-        }
-        return result;
-    }
     public Integer geTypeSwitch(String str){
         int code = 1;
         switch(str){

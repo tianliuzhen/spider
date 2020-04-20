@@ -4,11 +4,13 @@ package com.aaa.springbootwebmagic.domain.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @author TLZ
  */
 @Data
+@Accessors(chain = true)
 public class SxUtilType {
 
   @TableId(value = "id",type = IdType.AUTO)
