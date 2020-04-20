@@ -56,11 +56,7 @@ public class SxPipeline implements Pipeline {
             List<SxDTO> sxDTOS = resultItems.get("sxDTOS");
             for (SxDTO sxDTO : sxDTOS) {
                 SxType sxType = new SxType();
-                sxType.setCode(sxDTO.getCode());
-                sxType.setImgSrc1(sxDTO.getImgSrc1());
-                sxType.setImgSrc2(sxDTO.getImgSrc2());
-                sxType.setSxTypeName(sxDTO.getSxTypeName());
-                sxType.setSxTypeHref(sxDTO.getSxTypeHref());
+                BeanUtils.copyProperties(sxDTO,sxType);
                 sxType.setList(JSON.toJSONString(sxDTO.getList()));
                 sxTypeMapper.insert(sxType);
 

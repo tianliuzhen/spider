@@ -78,6 +78,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     }
 
     private void crawlIndex_4(Page page) {
+        //区别标题和文章详情
         List<String> p = page.getHtml().css("div[class='art_con_left']").all();
         if(p.size()>0){
             // 截取 url 的 数字作为id eg：https://www.d1xz.net/sx/zonghe/art361019.aspx ==》 获取 361019
@@ -147,8 +148,17 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sxUtils.add(sxUtil);
             }
             Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
+            String href = Jsoup.parse(s).select("ul[class='pic_ui fl'] li a").attr("href");
+            if (StringUtils.isNotBlank(href)){
+                page.addTargetRequest(href);
+            }
             if(select1.size()>=2){
                 sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(1).attr("src"));
+            }
+            if(sxUtils.size()>=2){
+                sxDTO.setImgTitle1(sxUtils.get(0).getSxArtTitle()).setImgTitle2(sxUtils.get(1).getSxArtTitle());
+                sxUtils.remove(0);
+                sxUtils.remove(0);
             }
             sxDTO.setCode(getCodeSwitch(sxTypeName.trim()));
             sxDTO.setList(sxUtils);

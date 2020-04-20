@@ -30,4 +30,9 @@ public class SxDTO {
      */
     private String imgSrc1 ;
     private String imgSrc2 ;
+    /**
+     * imgTitle
+     */
+    private String imgTitle1 ;
+    private String imgTitle2 ;
 }

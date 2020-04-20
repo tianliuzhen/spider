@@ -31,7 +31,7 @@ public class TestController {
     @RequestMapping(value = "/chineseZodiacV2Processor")
     public void chineseZodiacV2Processor(){
 
-//        chineseZodiacV2Processor.main();
+        chineseZodiacV2Processor.main();
         chineseZodiacV1Processor.main();
     }
 

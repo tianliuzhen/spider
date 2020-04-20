@@ -9,7 +9,7 @@ import lombok.Data;
  * @author TLZ
  */
 @Data
-public class SxType {
+public class SxUtilType {
 
   @TableId(value = "id",type = IdType.AUTO)
   private long id;
