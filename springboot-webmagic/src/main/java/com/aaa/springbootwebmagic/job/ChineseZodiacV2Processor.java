@@ -148,7 +148,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             }
             Elements select1 = Jsoup.parse(s).select("ul[class='pic_ui fl'] li img");
             if(select1.size()>=2){
-                sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(0).attr("src"));
+                sxDTO.setImgSrc1(select1.get(0).attr("src")).setImgSrc2(select1.get(1).attr("src"));
             }
             sxDTO.setCode(getCodeSwitch(sxTypeName.trim()));
             sxDTO.setList(sxUtils);
