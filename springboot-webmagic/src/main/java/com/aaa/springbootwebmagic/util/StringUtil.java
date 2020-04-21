@@ -73,4 +73,24 @@ public class StringUtil {
         }
         return code;
     }
+    public static String getCodeSwitch(String str){
+        Integer code = 0;
+        switch(str){
+            case "生肖运势" :
+                code = 1;
+                break;
+            case "生肖性格" :
+                code = 2;
+                break;
+            case "生肖爱情" :
+                code = 3;
+                break;
+            case "生肖解说":
+                code = 4;
+                break;
+            default : //可选
+                //语句
+        }
+        return code.toString();
+    }
 }

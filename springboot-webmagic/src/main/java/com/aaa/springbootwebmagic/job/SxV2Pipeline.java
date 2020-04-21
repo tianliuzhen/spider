@@ -5,6 +5,7 @@ import com.aaa.springbootwebmagic.domain.SxDTO;
 import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
 import com.aaa.springbootwebmagic.domain.entity.*;
 import com.aaa.springbootwebmagic.mapper.*;
+import com.aaa.springbootwebmagic.util.MySimHash;
 import com.alibaba.fastjson.JSON;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2020/4/16
  */
 @Component
-public class SxPipeline implements Pipeline {
+public class SxV2Pipeline implements Pipeline {
 
     @Autowired
     UserMapper userMapper;
@@ -42,9 +43,7 @@ public class SxPipeline implements Pipeline {
     @Autowired
     private ArtTypeInfoMapper artTypeInfoMapper;
     @Autowired
-    private SxMain12Mapper sxMain12Mapper;
-    @Autowired
-    private SxTypeUtilMapper sxTypeUtilMapper;
+    private SxMain12SubMapper SxMain12SubMapper;
     @Override
     public void process(ResultItems resultItems, Task task) {
         System.out.println("get page: " + resultItems.getRequest().getUrl());
@@ -57,7 +56,7 @@ public class SxPipeline implements Pipeline {
             List<SxDTO> sxDTOS = resultItems.get("sxDTOS");
             for (SxDTO sxDTO : sxDTOS) {
                 SxType sxType = new SxType();
-                BeanUtils.copyProperties(sxDTO,sxType);
+                BeanUtils.copyProperties(sxDTO, sxType);
                 sxType.setList(JSON.toJSONString(sxDTO.getList()));
                 sxTypeMapper.insert(sxType);
 
@@ -67,32 +66,37 @@ public class SxPipeline implements Pipeline {
             List<SxTypeListDTO> sxTypeListDTOS = resultItems.get("sxTypeListDTOS");
             for (SxTypeListDTO sxTypeListDTO : sxTypeListDTOS) {
                 SxTypeList sxTypeList = new SxTypeList();
-                BeanUtils.copyProperties(sxTypeListDTO,sxTypeList);
+                BeanUtils.copyProperties(sxTypeListDTO, sxTypeList);
                 sxTypeListMapper.insert(sxTypeList);
             }
 
         }
-        if (resultItems.get("artTypeUtils")!=null) {
+        if (resultItems.get("artTypeUtils") != null) {
             List<ArtTypeUtil> artTypeUtils = resultItems.get("artTypeUtils");
             for (ArtTypeUtil artTypeUtil : artTypeUtils) {
                 ArtTypeInfo artTypeInfo = new ArtTypeInfo();
-                BeanUtils.copyProperties(artTypeUtil,artTypeInfo);
-                artTypeInfoMapper.insert(artTypeInfo);
+                BeanUtils.copyProperties(artTypeUtil, artTypeInfo);
+                ArtTypeInfo artTypeInfo1 = artTypeInfoMapper.getArtTypeInfoByArtCode(artTypeUtil.getArtCode());
+                if(artTypeInfo1!=null){
+                    double semblance = CommonProcessor.simHash(artTypeUtil.getDetailHtml(), artTypeInfo1.getDetailHtml());
+                    //如果相似度达到 0.9 以上不去更新文章
+                    if(semblance<0.9){
+                        ArtTypeInfo artTypeInfo2 = artTypeInfoMapper.selectById(artTypeInfo1.getId());
+                        artTypeInfo2.setDetailHtml(artTypeUtil.getDetailHtml());
+                        artTypeInfoMapper.updateById(artTypeInfo2);
+                    }
+                }else{
+                    artTypeInfoMapper.insert(artTypeInfo);
+                }
+               //
             }
         }
-        if (resultItems.get("sx_12_main")!=null) {
-            SxMain12 sxMain12 =   resultItems.get("sx_12_main");
-            sxMain12Mapper.insert(sxMain12);
+        if (resultItems.get("SxMain12Sub") != null) {
+            SxMain12Sub sxMain12Sub = resultItems.get("SxMain12Sub");
+            SxMain12SubMapper.insert(sxMain12Sub);
         }
-        if (resultItems.get("sxDTOS2") != null) {
-            List<SxDTO> sxDTOS = resultItems.get("sxDTOS2");
-            for (SxDTO sxDTO : sxDTOS) {
-                SxUtilType sxType = new SxUtilType();
-                BeanUtils.copyProperties(sxDTO,sxType);
-                sxType.setList(JSON.toJSONString(sxDTO.getList()));
-                sxTypeUtilMapper.insert(sxType);
 
-            }
-        }
     }
+
+
 }

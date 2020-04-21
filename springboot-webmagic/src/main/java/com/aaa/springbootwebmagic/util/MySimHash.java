@@ -22,7 +22,7 @@ public class MySimHash {
         this.strSimHash = this.simHash();
     }
 
-    private MySimHash(String tokens, int hashbits) {
+    public MySimHash(String tokens, int hashbits) {
         this.tokens = tokens;
         this.hashbits = hashbits;
         this.strSimHash = this.simHash();
@@ -151,7 +151,7 @@ public class MySimHash {
      * @param other
      * @return
      */
-    private int hammingDistance(MySimHash other) {
+    public int hammingDistance(MySimHash other) {
         BigInteger m = new BigInteger("1").shiftLeft(this.hashbits).subtract(
                 new BigInteger("1"));
         BigInteger x = this.strSimHash.xor(other.strSimHash).and(m);

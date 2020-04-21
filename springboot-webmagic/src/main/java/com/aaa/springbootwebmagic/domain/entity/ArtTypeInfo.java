@@ -1,5 +1,7 @@
 package com.aaa.springbootwebmagic.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -16,6 +18,9 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 @Accessors(chain = true)
 @TableName("sx_art_type_info")
 public class ArtTypeInfo {
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
     private String href;
     private String title;
     private String detailHtml;

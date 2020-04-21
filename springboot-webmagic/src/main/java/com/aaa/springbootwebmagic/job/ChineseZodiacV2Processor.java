@@ -1,28 +1,28 @@
 package com.aaa.springbootwebmagic.job;
 
 import com.aaa.springbootwebmagic.config.HttpClientDownloader;
-import com.aaa.springbootwebmagic.domain.*;
-import com.aaa.springbootwebmagic.domain.entity.SxIndex;
-import com.aaa.springbootwebmagic.mapper.SxIndexMapper;
+import com.aaa.springbootwebmagic.domain.SxDTO;
+import com.aaa.springbootwebmagic.domain.SxIndexRoll;
+import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
+import com.aaa.springbootwebmagic.domain.SxUtil;
+import com.aaa.springbootwebmagic.domain.entity.SxMain12Sub;
+import com.aaa.springbootwebmagic.domain.entity.SxTypeList;
 import com.aaa.springbootwebmagic.util.StringUtil;
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.processor.PageProcessor;
-import org.apache.commons.lang3.StringUtils;
+import us.codecraft.webmagic.selector.Selectable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * description: 采集十二生效
@@ -38,7 +38,8 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     /**
      * 限制分页条数
      */
-    public static final int PAGE_LIMIT = 2;
+    public static final int PAGE_LIMIT = 20;
+    public static final String AN_OBJECT = "专题";
 
     private Site site= Site.me().setRetryTimes(5).setSleepTime(100).setTimeOut(5000).setCharset("utf-8")
             .setCycleRetryTimes(2);
@@ -48,7 +49,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     public static  int PAGE_INT = 1,xingge = 1,zonghe =1,aiqing =1 ,jieshuo=1;
 
     @Autowired
-    private SxPipeline sxPipeline;
+    private SxV2Pipeline sxV2Pipeline;
 
     /**
      *    fixedDelay 每隔几秒执行一次
@@ -58,8 +59,8 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     public  void main() {
         Spider.create(new ChineseZodiacV2Processor()).setDownloader(new HttpClientDownloader())
                 .addUrl("https://www.d1xz.net/sx/")
-                .addPipeline(this.sxPipeline)
-                .thread(10).run();
+                .addPipeline(this.sxV2Pipeline)
+                .thread(20).run();
     }
 
 
@@ -73,31 +74,46 @@ public class ChineseZodiacV2Processor implements PageProcessor {
         //3. 抓取  生肖运势 、生肖性格、生肖爱情、生肖解说  第三层url  (文章详情)
         crawlIndex_3(page);
         //4. 存入文章类型详情
-        crawlIndex_4(page);
+        CommonProcessor.crawlIndex_4(page,2);
+        //5. 采集专题
+        crawlIndex_5(page);
         System.out.println("总共发起url = " + ++i);
 
     }
 
-    private void crawlIndex_4(Page page) {
-        //区别标题和文章详情
-        List<String> p = page.getHtml().css("div[class='art_con_left']").all();
-        if(p.size()>0){
-            // 截取 url 的 数字作为id eg：https://www.d1xz.net/sx/zonghe/art361019.aspx ==》 获取 361019
-            String artId = page.getUrl().regex("(?<=art).*(?=\\.)").get();
-            List<ArtTypeUtil> artTypeUtils = Lists.newArrayList();
-            String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
-            ArtTypeUtil artTypeUtil = new ArtTypeUtil();
-            artTypeUtil.setSxTypeCode(getCodeSwitch(code)).setArtCode(artId);
-            artTypeUtil.setHref(page.getUrl().toString());
-            artTypeUtil.setTitle(Jsoup.parse(p.get(0)).select(".art_detail_title").text());
-            artTypeUtil.setDetailHtml(p.get(0));
-            artTypeUtils.add(artTypeUtil);
-            if (artTypeUtils.size()>0) {
-                page.putField("artTypeUtils",artTypeUtils);
+    private void crawlIndex_5(Page page) {
+        List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();
+            String title = page.getHtml().xpath("//div[@class='cur_postion w960']/span[2]/text()").get();
+            if(StringUtils.isNotBlank(title) && title.equals(AN_OBJECT)){
+                System.out.println();
+                String src = page.getHtml().xpath("//a[@class='pic_adv relative']/img/@src").get();
+                String alt = page.getHtml().xpath("//a[@class='pic_adv relative']/img/@alt").get();
+                String desc = page.getHtml().xpath("//div[@class='describe_words']/p/text()").get();
+                String code = StringUtil.getSxType(alt.substring(1, 2));
+                code = StringUtils.isBlank(code) ? "all" : code;
+                List<String> all = page.getHtml().xpath("//ul[@class='words_list_ui']/li").all();
+                for (String s : all) {
+                    String href = Jsoup.parse(s).select("a").attr("href");
+                    String title2 = Jsoup.parse(s).select("a img").attr("alt");
+                    String src2 = Jsoup.parse(s).select("a img").attr("src");
+                    String info = Jsoup.parse(s).select("li p").first().text();
+                    page.addTargetRequest(href);
+                    SxTypeListDTO sxTypeList = new SxTypeListDTO();
+                    sxTypeList.setArtCode(StringUtil.getUrlArtId(href)).setHref(src2).setTitle(title2).setTitleDesc(info).setSxTypeCode(code);
+                    sxTypeListDTOS.add(sxTypeList);
+                }
+                // 放入自定义管道 3
+                if (sxTypeListDTOS.size()>0) {
+                    page.putField("sxTypeListDTOS",sxTypeListDTOS);
+                }
+                SxMain12Sub sxMain12Sub = new SxMain12Sub();
+                sxMain12Sub.setCode(code).setImgUrl(src).setTitle(alt).setInfo(desc);
+                page.putField("SxMain12Sub",sxMain12Sub);
             }
-            // TODO:  待入库2
-        }
+
+
     }
+
 
     private void crawlIndex_3(Page page) {
         List<SxTypeListDTO> sxTypeListDTOS = Lists.newArrayList();
@@ -113,7 +129,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sxTypeListDTO.setArtCode(StringUtil.getUrlArtId(url));
                 //todo  ===》   创建url循环进行循环抓取 文章详情
                 page.addTargetRequest(url);
-                sxTypeListDTO.setSxTypeCode(getCodeSwitch(type));
+                sxTypeListDTO.setSxTypeCode(StringUtil.getCodeSwitch(type));
                 sxTypeListDTOS.add(sxTypeListDTO);
             }
             // 截取 url 的 数字作为id eg：/sx/zonghe/index_3.aspx ==》 获取 zonghe
@@ -162,7 +178,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 sxUtils.remove(0);
                 sxUtils.remove(0);
             }
-            sxDTO.setCode(getCodeSwitch(sxTypeName.trim()));
+            sxDTO.setCode(StringUtil.getCodeSwitch(sxTypeName.trim()));
             sxDTO.setList(sxUtils);
             sxDTOS.add(sxDTO);
             // 放入自定义管道 2
@@ -218,26 +234,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
         return code;
     }
 
-    public String getCodeSwitch(String str){
-        Integer code = 0;
-        switch(str){
-            case "生肖运势" :
-                code = 1;
-                break;
-            case "生肖性格" :
-                code = 2;
-                break;
-            case "生肖爱情" :
-                code = 3;
-                break;
-            case "生肖解说":
-                code = 4;
-                break;
-            default : //可选
-                //语句
-        }
-        return code.toString();
-    }
+
 
     @Override
     public Site getSite() {

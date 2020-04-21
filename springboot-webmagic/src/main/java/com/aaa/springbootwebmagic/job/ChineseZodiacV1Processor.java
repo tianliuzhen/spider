@@ -1,6 +1,7 @@
 package com.aaa.springbootwebmagic.job;
 
 import com.aaa.springbootwebmagic.config.HttpClientDownloader;
+import com.aaa.springbootwebmagic.domain.ArtTypeUtil;
 import com.aaa.springbootwebmagic.domain.SxDTO;
 import com.aaa.springbootwebmagic.domain.SxIndexRoll;
 import com.aaa.springbootwebmagic.domain.SxUtil;
@@ -36,7 +37,7 @@ import java.util.List;
 public class ChineseZodiacV1Processor implements PageProcessor {
 
     @Autowired
-    private    SxPipeline sxPipeline;
+    private    SxV1Pipeline sxV1Pipeline;
 
     private int i = 1;
     public static final String NET = "https://www.d1xz.net";
@@ -49,13 +50,15 @@ public class ChineseZodiacV1Processor implements PageProcessor {
     public   void main() {
         Spider.create(new ChineseZodiacV1Processor()).setDownloader(new HttpClientDownloader())
                 .addUrl("https://www.d1xz.net/sx/")
-                .addPipeline(sxPipeline)
+                .addPipeline(sxV1Pipeline)
                 .thread(20).run();
     }
 
     @Override
     public void process(Page page) {
         getAll12(page);
+
+        CommonProcessor.crawlIndex_4(page,1);
         i++;
     }
     private void getAll12(Page page) {
@@ -63,6 +66,7 @@ public class ChineseZodiacV1Processor implements PageProcessor {
         crawlIndex_1(page);
         //2. 采集列表
         crawlIndex_2(page);
+
     }
 
     private void crawlIndex_2(Page page) {
