@@ -13,6 +13,28 @@ import java.util.regex.Pattern;
  * @date 2020/4/20
  */
 public class StringUtil {
+
+    public static String getStringFilter(String args){
+
+        String reg = "(?<=<p>相关文章推荐).*(?=<\\/p>)";//定义正则表达式
+
+        String str = args;
+
+        Pattern patten = Pattern.compile(reg);//编译正则表达式
+        Matcher matcher = patten.matcher(str);// 指定要匹配的字符串
+
+        List<String> matchStrs = new ArrayList<>();
+
+        while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
+            matchStrs.add(matcher.group());//获取当前匹配的值
+        }
+        for (int i = 0; i < matchStrs.size(); i++) {
+            System.out.println(matchStrs.get(i));
+            str = str.replace(matchStrs.get(i), "");
+        }
+        return str.replace("<p>相关文章推荐：</p>","");
+    }
+
     public static   int getUrlArtId(String args) {
         String str = args;
         String reg = "(?<=art).*(?=\\.)";//定义正则表达式

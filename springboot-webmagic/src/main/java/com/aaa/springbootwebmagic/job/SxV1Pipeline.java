@@ -6,6 +6,7 @@ import com.aaa.springbootwebmagic.domain.SxTypeListDTO;
 import com.aaa.springbootwebmagic.domain.entity.*;
 import com.aaa.springbootwebmagic.mapper.*;
 import com.aaa.springbootwebmagic.util.MySimHash;
+import com.aaa.springbootwebmagic.util.StringUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -54,6 +55,7 @@ public class SxV1Pipeline implements Pipeline {
         if (resultItems.get("artTypeUtils") != null) {
             List<ArtTypeUtil> artTypeUtils = resultItems.get("artTypeUtils");
             for (ArtTypeUtil artTypeUtil : artTypeUtils) {
+                artTypeUtil.setDetailHtml(StringUtil.getStringFilter(artTypeUtil.getDetailHtml()));
                 ArtTypeInfo artTypeInfo = new ArtTypeInfo();
                 BeanUtils.copyProperties(artTypeUtil, artTypeInfo);
                 ArtTypeInfo artTypeInfo1 = artTypeInfoMapper.getArtTypeInfoByArtCode(artTypeUtil.getArtCode());
