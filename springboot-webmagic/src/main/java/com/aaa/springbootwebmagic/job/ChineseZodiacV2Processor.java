@@ -218,7 +218,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
         return code;
     }
 
-    public Integer getCodeSwitch(String str){
+    public String getCodeSwitch(String str){
         Integer code = 0;
         switch(str){
             case "生肖运势" :
@@ -236,7 +236,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             default : //可选
                 //语句
         }
-        return code;
+        return code.toString();
     }
 
     @Override

@@ -50,7 +50,7 @@ public class ChineseZodiacV1Processor implements PageProcessor {
         Spider.create(new ChineseZodiacV1Processor()).setDownloader(new HttpClientDownloader())
                 .addUrl("https://www.d1xz.net/sx/")
                 .addPipeline(sxPipeline)
-                .thread(1).run();
+                .thread(20).run();
     }
 
     @Override
@@ -89,7 +89,6 @@ public class ChineseZodiacV1Processor implements PageProcessor {
               if( select1.size()>0 &&  select1.size()==select2.size() ){
                   for (int i2 = 0; i2 < select1.size(); i2++) {
                       SxDTO sxDTO2 = new SxDTO();
-                      sxDTO2.setCode(1);
                       Elements element1 = select1.get(i2).select("li");
                       if(element1.size()>=1){
                           sxDTO2.setImgSrc1(element1.get(0).select("img").attr("src"));
@@ -119,15 +118,13 @@ public class ChineseZodiacV1Processor implements PageProcessor {
                       if (div.size()>=3){
                           sxDTO2.setSxTypeName(all.get(i1+1));
                       }
-// TODO: 2020/4/20 待入库 
-                      page.putField("sxDTO2", JSON.toJSONString(list));
+                      sxUtilTypes.add(sxDTO2);
+                      page.putField("sxDTOS2", sxUtilTypes);
                   }
-
 
               }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
         }
         }
@@ -149,8 +146,10 @@ public class ChineseZodiacV1Processor implements PageProcessor {
         String desc = page.getHtml().xpath("//p[@class='words']/span[2]/text()").get();
         String info = page.getHtml().xpath("//div[@class='xz_det z_det fr']//p[@class='txt']/text()").get();
         if(StringUtils.isNotBlank(imgUrl)){
+            String s1 = page.getHtml().xpath("//span[@class='fb st_sx']/text()").get().substring(1, 2);
             SxMain12 sxMain12 = new SxMain12();
-            sxMain12.setTitle(title).setTitleDesc(desc).setImgUrl(NET+imgUrl).setInfo(info);
+            sxMain12.setTitle(title).setTitleDesc(desc).setImgUrl(NET+imgUrl).setInfo(info)
+            .setCode(StringUtil.getSxType(s1));
             page.putField("sx_12_main",sxMain12);
         }
     }

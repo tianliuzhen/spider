@@ -31,44 +31,44 @@ public class StringUtil {
         }
         return result;
     }
-    public static int getSxType(String str){
-        int code = 1;
+    public static String getSxType(String str){
+        String code = "";
         switch (str){
             case "鼠":
-                code=1;
+                code="shu";
                 break;
             case "牛":
-                code=2;
+                code="niu";
                 break;
             case "虎":
-                code=3;
+                code="hu";
                 break;
             case "兔":
-                code=4;
+                code="tu";
                 break;
             case "龙":
-                code=5;
+                code="long";
                 break;
             case "蛇":
-                code=6;
+                code="she";
                 break;
             case "马":
-                code=7;
+                code="ma";
                 break;
             case "羊":
-                code=8;
+                code="yang";
                 break;
             case "猴":
-                code=9;
+                code="hou";
                 break;
             case "鸡":
-                code=10;
+                code="ji";
                 break;
             case "狗":
-                code=11;
+                code="gou";
                 break;
             case "猪":
-                code=12;
+                code="zhu";
                 break;
         }
         return code;

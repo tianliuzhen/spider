@@ -20,7 +20,7 @@ public class ArtTypeUtil {
     /**
      * 生肖文章类型ID
      */
-    private Integer sxTypeCode;
+    private String sxTypeCode;
     /**
      * 生肖类型ID
      */

@@ -43,7 +43,8 @@ public class SxPipeline implements Pipeline {
     private ArtTypeInfoMapper artTypeInfoMapper;
     @Autowired
     private SxMain12Mapper sxMain12Mapper;
-
+    @Autowired
+    private SxTypeUtilMapper sxTypeUtilMapper;
     @Override
     public void process(ResultItems resultItems, Task task) {
         System.out.println("get page: " + resultItems.getRequest().getUrl());
@@ -82,6 +83,16 @@ public class SxPipeline implements Pipeline {
         if (resultItems.get("sx_12_main")!=null) {
             SxMain12 sxMain12 =   resultItems.get("sx_12_main");
             sxMain12Mapper.insert(sxMain12);
+        }
+        if (resultItems.get("sxDTOS2") != null) {
+            List<SxDTO> sxDTOS = resultItems.get("sxDTOS2");
+            for (SxDTO sxDTO : sxDTOS) {
+                SxUtilType sxType = new SxUtilType();
+                BeanUtils.copyProperties(sxDTO,sxType);
+                sxType.setList(JSON.toJSONString(sxDTO.getList()));
+                sxTypeUtilMapper.insert(sxType);
+
+            }
         }
     }
 }

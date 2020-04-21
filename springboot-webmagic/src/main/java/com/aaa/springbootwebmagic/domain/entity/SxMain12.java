@@ -26,6 +26,9 @@ public class SxMain12  implements Serializable {
 	@TableId(value = "id",type = IdType.AUTO)
 	private long id;
 
+	private String code;
+
+
 	/**
 	 * 图片url
 	 */

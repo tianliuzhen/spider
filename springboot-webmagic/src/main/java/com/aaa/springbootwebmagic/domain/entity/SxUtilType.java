@@ -17,7 +17,7 @@ public class SxUtilType {
   private long id;
 
   private Integer type;
-  private Integer code;
+  private String code;
   private String sxTypeName;
   private String sxTypeHref;
   private String imgSrc1;

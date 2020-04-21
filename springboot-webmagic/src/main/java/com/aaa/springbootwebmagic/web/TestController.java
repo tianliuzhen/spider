@@ -31,10 +31,13 @@ public class TestController {
     @RequestMapping(value = "/chineseZodiacV2Processor")
     public void chineseZodiacV2Processor(){
 
-        // chineseZodiacV2Processor.main();
+         chineseZodiacV2Processor.main();
+    }
+    @RequestMapping(value = "/chineseZodiacV1Processor")
+    public void chineseZodiacV1Processor(){
+
         chineseZodiacV1Processor.main();
     }
-
     @RequestMapping(value = "/getUserListAll")
     public List<User> getUserListAll(){
 

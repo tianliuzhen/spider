@@ -28,7 +28,7 @@ public class SxTypeListDTO {
     /**
      * 标题类型
      */
-    private Integer  sxTypeCode;
+    private String  sxTypeCode;
 
 
     /**

@@ -18,7 +18,7 @@ public class SxDTO {
     /**
      * 用于区别类型
      */
-    private Integer code;
+    private String code;
     private String sxTypeName;
     private String sxTypeHref;
     /**
