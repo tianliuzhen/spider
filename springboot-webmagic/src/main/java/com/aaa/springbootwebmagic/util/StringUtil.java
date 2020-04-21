@@ -16,9 +16,9 @@ public class StringUtil {
 
     public static String getStringFilter(String args){
 
-        String reg = "(?<=<p>相关文章推荐).*(?=<\\/p>)";//定义正则表达式
-
-        String str = args;
+        String reg = "(?<=<p>相关文章推荐：<br>).*(?=<\\/p>)";//定义正则表达式
+        //  去除 /r/n.使用这个就不会有/r/n.
+        String str = args.replaceAll("(\\\r\\\n|\\\r|\\\n|\\\n\\\r)", "");
 
         Pattern patten = Pattern.compile(reg);//编译正则表达式
         Matcher matcher = patten.matcher(str);// 指定要匹配的字符串
@@ -32,7 +32,7 @@ public class StringUtil {
             System.out.println(matchStrs.get(i));
             str = str.replace(matchStrs.get(i), "");
         }
-        return str.replace("<p>相关文章推荐：</p>","");
+        return str.replace("<p>相关文章推荐：<br>","");
     }
 
     public static   int getUrlArtId(String args) {
