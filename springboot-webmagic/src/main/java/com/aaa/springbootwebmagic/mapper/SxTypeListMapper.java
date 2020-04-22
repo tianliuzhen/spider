@@ -16,6 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SxTypeListMapper extends BaseMapper<SxTypeList> {
-    @Select(" SELECT * FROM `spider`.`sx_type_list` WHERE `sx_type_code`=#{sxTypeCode} AND `art_code`=#{artCode} order by id desc limit 1 ")
+    @Select(" SELECT * FROM `sx_type_list` WHERE `sx_type_code`=#{sxTypeCode} AND `art_code`=#{artCode} order by id desc limit 1 ")
     SxTypeList getOne(@Param("sxTypeCode") String sxTypeCode,@Param("artCode") Integer artCode);
 }

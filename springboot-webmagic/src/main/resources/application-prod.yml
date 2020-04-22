@@ -1,0 +1,16 @@
+# DataSource Config
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://118.31.33.182:3306/infodb?&serverTimezone=UTC
+    username: haoxiaec
+    password: haoxia135..
+    hikari:
+      max-lifetime: 1500000
+      connection-timeout: 30000
+      idle-timeout: 30000
+      pool-name: SpringBootHikariCP
+      maximum-pool-size: 8
+      minimum-idle: 3
+
+
