@@ -49,4 +49,15 @@ public class SxMain12Sub implements Serializable {
 	 * 文本
 	 */
 	private String info;
+
+	@Override
+	public String toString() {
+		return "SxMain12Sub{" +
+				"code='" + code + '\'' +
+				", imgUrl='" + imgUrl + '\'' +
+				", title='" + title + '\'' +
+				", titleDesc='" + titleDesc + '\'' +
+				", info='" + info + '\'' +
+				'}';
+	}
 }

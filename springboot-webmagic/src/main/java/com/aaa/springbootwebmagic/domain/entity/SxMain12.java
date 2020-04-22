@@ -48,4 +48,15 @@ public class SxMain12  implements Serializable {
 	 * 文本
 	 */
 	private String info;
+
+	@Override
+	public String toString() {
+		return "SxMain12{" +
+				"code='" + code + '\'' +
+				", imgUrl='" + imgUrl + '\'' +
+				", title='" + title + '\'' +
+				", titleDesc='" + titleDesc + '\'' +
+				", info='" + info + '\'' +
+				'}';
+	}
 }

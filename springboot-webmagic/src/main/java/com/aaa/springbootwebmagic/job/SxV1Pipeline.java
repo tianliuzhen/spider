@@ -33,14 +33,23 @@ public class SxV1Pipeline implements Pipeline {
     @Autowired
     private SxTypeUtilMapper sxTypeUtilMapper;
     @Autowired
-    private ArtTypeInfoMapper artTypeInfoMapper;
+    private CommonPipeline commonPipeline;
     @Override
     public void process(ResultItems resultItems, Task task) {
 
         System.out.println("get page: " + resultItems.getRequest().getUrl());
         if (resultItems.get("sx_12_main")!=null) {
             SxMain12 sxMain12 =   resultItems.get("sx_12_main");
-            sxMain12Mapper.insert(sxMain12);
+            SxMain12 one = sxMain12Mapper.getOne(sxMain12.getCode());
+            if(one!=null){
+                double v = CommonProcessor.simHash(sxMain12.toString(), one.toString());
+                if(v<1){
+                    one.setImgUrl(sxMain12.getImgUrl()).setTitle(sxMain12.getTitle()).setTitleDesc(sxMain12.getTitleDesc()).setInfo(sxMain12.getInfo());
+                    sxMain12Mapper.updateById(one);
+                }
+            }else {
+                sxMain12Mapper.insert(sxMain12);
+            }
         }
         if (resultItems.get("sxDTOS2") != null) {
             List<SxDTO> sxDTOS = resultItems.get("sxDTOS2");
@@ -48,30 +57,21 @@ public class SxV1Pipeline implements Pipeline {
                 SxUtilType sxType = new SxUtilType();
                 BeanUtils.copyProperties(sxDTO,sxType);
                 sxType.setList(JSON.toJSONString(sxDTO.getList()));
-                sxTypeUtilMapper.insert(sxType);
-
+                SxUtilType one = sxTypeUtilMapper.getOne(sxType.getCode());
+                if(one!=null){
+                    double v = CommonProcessor.simHash(sxType.toString(), one.toString());
+                    if (v<1){
+                        BeanUtils.copyProperties(sxType,one,"id");
+                        sxTypeUtilMapper.updateById(one);
+                    }
+                }else {
+                    sxTypeUtilMapper.insert(sxType);
+                }
             }
         }
         if (resultItems.get("artTypeUtils") != null) {
             List<ArtTypeUtil> artTypeUtils = resultItems.get("artTypeUtils");
-            for (ArtTypeUtil artTypeUtil : artTypeUtils) {
-                artTypeUtil.setDetailHtml(StringUtil.getStringFilter(artTypeUtil.getDetailHtml()));
-                ArtTypeInfo artTypeInfo = new ArtTypeInfo();
-                BeanUtils.copyProperties(artTypeUtil, artTypeInfo);
-                ArtTypeInfo artTypeInfo1 = artTypeInfoMapper.getArtTypeInfoByArtCode(artTypeUtil.getArtCode());
-                if(artTypeInfo1!=null){
-                    double semblance = CommonProcessor.simHash(artTypeUtil.getDetailHtml(), artTypeInfo1.getDetailHtml());
-                    //如果相似度达到 0.9 以上不去更新文章
-                    if(semblance<0.9){
-                        ArtTypeInfo artTypeInfo2 = artTypeInfoMapper.selectById(artTypeInfo1.getId());
-                        artTypeInfo2.setDetailHtml(artTypeUtil.getDetailHtml());
-                        artTypeInfoMapper.updateById(artTypeInfo2);
-                    }
-                }else{
-                    artTypeInfoMapper.insert(artTypeInfo);
-                }
-
-            }
+            commonPipeline.editArtTypeUtils(artTypeUtils);
         }
     }
 }

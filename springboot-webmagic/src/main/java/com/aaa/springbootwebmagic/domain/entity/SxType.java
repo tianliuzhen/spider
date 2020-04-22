@@ -27,5 +27,18 @@ public class SxType {
   private String imgTitle1 ;
   private String imgTitle2 ;
 
-
+  @Override
+  public String toString() {
+    return "SxType{" +
+            "type=" + type +
+            ", code='" + code + '\'' +
+            ", sxTypeName='" + sxTypeName + '\'' +
+            ", sxTypeHref='" + sxTypeHref + '\'' +
+            ", imgSrc1='" + imgSrc1 + '\'' +
+            ", imgSrc2='" + imgSrc2 + '\'' +
+            ", list='" + list + '\'' +
+            ", imgTitle1='" + imgTitle1 + '\'' +
+            ", imgTitle2='" + imgTitle2 + '\'' +
+            '}';
+  }
 }

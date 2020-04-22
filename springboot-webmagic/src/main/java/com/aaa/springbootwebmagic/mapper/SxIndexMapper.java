@@ -2,6 +2,7 @@ package com.aaa.springbootwebmagic.mapper;
 
 import com.aaa.springbootwebmagic.domain.entity.SxIndex;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,4 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SxIndexMapper extends BaseMapper<SxIndex> {
+    @Select("select * from sx_index order By id desc limit 1 ")
+    SxIndex getOne();
 }
