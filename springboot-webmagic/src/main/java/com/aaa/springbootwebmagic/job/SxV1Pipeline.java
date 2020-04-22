@@ -57,7 +57,16 @@ public class SxV1Pipeline implements Pipeline {
                 SxUtilType sxType = new SxUtilType();
                 BeanUtils.copyProperties(sxDTO,sxType);
                 sxType.setList(JSON.toJSONString(sxDTO.getList()));
-                sxTypeUtilMapper.insert(sxType);
+                SxUtilType one = sxTypeUtilMapper.getOne(sxType.getSxTypeHref(),sxType.getSxTypeName());
+                if(one!=null){
+                    double v = CommonProcessor.simHash(sxType.toString(), one.toString());
+                    if (v<1){
+                        BeanUtils.copyProperties(sxType,one,"id");
+                        sxTypeUtilMapper.updateById(one);
+                    }
+                }else {
+                    sxTypeUtilMapper.insert(sxType);
+                }
             }
         }
         if (resultItems.get("artTypeUtils") != null) {

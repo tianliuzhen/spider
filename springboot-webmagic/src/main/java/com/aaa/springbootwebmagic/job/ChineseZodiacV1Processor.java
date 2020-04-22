@@ -115,6 +115,7 @@ public class ChineseZodiacV1Processor implements PageProcessor {
                       sxDTO2.setList(list);
                       String s1 = page.getHtml().xpath("//span[@class='fb st_sx']/text()").get().substring(1, 2);
                       sxDTO2.setCode(StringUtil.getSxType(s1));
+                      sxDTO2.setSxTypeHref(String.valueOf(i2+1));
                       // sxDTO2.setSxTypeHref();
                       if(div.size()==1){
                           sxDTO2.setSxTypeName(all.get(0));

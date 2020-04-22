@@ -16,6 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SxTypeUtilMapper extends BaseMapper<SxUtilType> {
-    @Select(" select * from sx_util_type where code =#{code} order by id desc limit 1 ")
-    SxUtilType getOne(@Param("code") String code);
+    @Select(" SELECT * FROM `sx_util_type` WHERE `sx_type_href` = #{code} AND `sx_type_name` = #{name} limit 1")
+    SxUtilType getOne(@Param("code") String code,@Param("name") String name);
 }
