@@ -97,12 +97,12 @@ public class ChineseZodiacV1Processor implements PageProcessor {
                       if(element1.size()>=1){
                           String aHref = element1.get(0).select("a").attr("href");
                           page.addTargetRequest(aHref);
-                          sxDTO2.setImgSrc1(element1.get(0).select("img").attr("src")+","+StringUtil.getUrlArtId(aHref));
+                          sxDTO2.setImgSrc1(element1.get(0).select("img").attr("src")+"?"+StringUtil.getUrlArtId(aHref));
                           sxDTO2.setImgTitle1(element1.get(0).select("img").attr("alt"));
                       }
                       if(element1.size()>=2 ){
                           String aHref = element1.get(1).select("a").attr("href");
-                          sxDTO2.setImgSrc2(element1.get(1).select("img").attr("src")+","+StringUtil.getUrlArtId(aHref));
+                          sxDTO2.setImgSrc2(element1.get(1).select("img").attr("src")+"?"+StringUtil.getUrlArtId(aHref));
                           sxDTO2.setImgTitle2(element1.get(1).select("img").attr("alt"));
                       }
                       List<SxUtil> list=Lists.newArrayList();

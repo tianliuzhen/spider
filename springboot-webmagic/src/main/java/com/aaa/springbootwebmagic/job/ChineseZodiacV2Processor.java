@@ -169,8 +169,8 @@ public class ChineseZodiacV2Processor implements PageProcessor {
             if(select1.size()>=2){
                 String aHref1 = select1.get(0).select("a").attr("href");
                 String aHref2 = select1.get(0).select("a").attr("href");
-                sxDTO.setImgSrc1(select1.get(0).select("img").attr("src")+","+StringUtil.getUrlArtId(aHref1));
-                sxDTO.setImgSrc2(select1.get(0).select("img").attr("src")+","+StringUtil.getUrlArtId(aHref2));
+                sxDTO.setImgSrc1(select1.get(0).select("img").attr("src")+"?"+StringUtil.getUrlArtId(aHref1));
+                sxDTO.setImgSrc2(select1.get(0).select("img").attr("src")+"?"+StringUtil.getUrlArtId(aHref2));
                 page.addTargetRequest(aHref1);
                 page.addTargetRequest(aHref2);
             }
