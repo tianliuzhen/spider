@@ -15,5 +15,5 @@ import java.util.List;
 public class SxIndexRoll{
     private String srcUrl;
     private String srcTitle;
-    private Integer artCode;
+    private String artCode;
 }

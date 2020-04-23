@@ -34,5 +34,5 @@ public class SxTypeListDTO {
     /**
      * 生肖文章类型ID
      */
-    private Integer ArtCode;
+    private String ArtCode;
 }

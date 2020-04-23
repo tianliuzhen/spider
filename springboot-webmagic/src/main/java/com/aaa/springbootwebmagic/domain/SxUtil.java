@@ -14,6 +14,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SxUtil {
     private String sxArtTitle;
-    private Integer sxArtHref;
+    private String sxArtHref;
     private String sxArtUtil;
 }

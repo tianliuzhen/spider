@@ -35,7 +35,7 @@ public class StringUtil {
         return str.replace("<p>相关文章推荐：<br>","");
     }
 
-    public static   int getUrlArtId(String args) {
+    public static   String getUrlArtId(String args) {
         String str = args;
         String reg = "(?<=art).*(?=\\.)";//定义正则表达式
 
@@ -47,9 +47,9 @@ public class StringUtil {
         while (matcher.find()) { //此处find（）每次被调用后，会偏移到下一个匹配
             matchStrs.add(matcher.group());//获取当前匹配的值
         }
-        int result = 0;
+        String result = "";
         for (int i = 0; i < matchStrs.size(); i++) {
-            result = Integer.parseInt(matchStrs.get(i));
+            result = matchStrs.get(i);
         }
         return result;
     }
