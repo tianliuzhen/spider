@@ -38,7 +38,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
     /**
      * 限制分页条数
      */
-    public static final int PAGE_LIMIT = 2;
+    public static final int PAGE_LIMIT = 20;
     public static final String AN_OBJECT = "专题";
 
     private Site site= Site.me().setRetryTimes(5).setSleepTime(100).setTimeOut(5000).setCharset("utf-8")
@@ -89,7 +89,7 @@ public class ChineseZodiacV2Processor implements PageProcessor {
                 String src = page.getHtml().xpath("//a[@class='pic_adv relative']/img/@src").get();
                 String alt = page.getHtml().xpath("//a[@class='pic_adv relative']/img/@alt").get();
                 String desc = page.getHtml().xpath("//div[@class='describe_words']/p/text()").get();
-                String code = StringUtil.getSxType(alt.substring(1, 2));
+                String code = StringUtil.getSxType(alt.substring(1, 2)).split(",")[0];
                 code = StringUtils.isBlank(code) ? "all" : code;
                 List<String> all = page.getHtml().xpath("//ul[@class='words_list_ui']/li").all();
                 for (String s : all) {

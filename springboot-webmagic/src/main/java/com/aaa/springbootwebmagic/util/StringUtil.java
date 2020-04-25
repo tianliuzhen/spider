@@ -57,40 +57,40 @@ public class StringUtil {
         String code = "";
         switch (str){
             case "鼠":
-                code="shu";
+                code="shu"+","+"1";
                 break;
             case "牛":
-                code="niu";
+                code="niu"+","+"2";
                 break;
             case "虎":
-                code="hu";
+                code="hu"+","+"3";
                 break;
             case "兔":
-                code="tu";
+                code="tu"+","+"4";
                 break;
             case "龙":
-                code="long";
+                code="long"+","+"5";
                 break;
             case "蛇":
-                code="she";
+                code="she"+","+"6";
                 break;
             case "马":
-                code="ma";
+                code="ma"+","+"7";
                 break;
             case "羊":
-                code="yang";
+                code="yang"+","+"8";
                 break;
             case "猴":
-                code="hou";
+                code="hou"+","+"9";
                 break;
             case "鸡":
-                code="ji";
+                code="ji"+","+"10";
                 break;
             case "狗":
-                code="gou";
+                code="gou"+","+"11";
                 break;
             case "猪":
-                code="zhu";
+                code="zhu"+","+"12";
                 break;
         }
         return code;

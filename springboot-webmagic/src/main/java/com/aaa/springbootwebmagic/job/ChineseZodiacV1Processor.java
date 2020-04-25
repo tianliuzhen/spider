@@ -117,7 +117,7 @@ public class ChineseZodiacV1Processor implements PageProcessor {
                       }
                       sxDTO2.setList(list);
                       String s1 = page.getHtml().xpath("//span[@class='fb st_sx']/text()").get().substring(1, 2);
-                      sxDTO2.setCode(StringUtil.getSxType(s1));
+                      sxDTO2.setCode(StringUtil.getSxType(s1).split(",")[0]);
                       sxDTO2.setSxTypeHref(String.valueOf(i2+1));
                       // sxDTO2.setSxTypeHref();
                       if(div.size()==1){
@@ -156,8 +156,11 @@ public class ChineseZodiacV1Processor implements PageProcessor {
         if(StringUtils.isNotBlank(imgUrl)){
             String s1 = page.getHtml().xpath("//span[@class='fb st_sx']/text()").get().substring(1, 2);
             SxMain12 sxMain12 = new SxMain12();
-            sxMain12.setTitle(title).setTitleDesc(desc).setImgUrl(NET+imgUrl).setInfo(info)
-            .setCode(StringUtil.getSxType(s1));
+            sxMain12.setTitle(title).setTitleDesc(desc).setImgUrl(NET+imgUrl).setInfo(info);
+            String[] split = StringUtil.getSxType(s1).split(",");
+            if (split.length>0) {
+                sxMain12.setCode(split[0]).setCodeId(split[1]);
+            }
             page.putField("sx_12_main",sxMain12);
         }
     }
