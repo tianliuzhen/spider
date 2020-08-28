@@ -28,6 +28,7 @@ public class SxMain12  implements Serializable {
 
 	private String code;
 
+	private String codeId;
 
 	/**
 	 * 图片url

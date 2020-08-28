@@ -34,5 +34,5 @@ public class SxTypeList {
     /**
      * 生肖文章类型ID
      */
-    private Integer artCode;
+    private String artCode;
 }

@@ -31,7 +31,7 @@ public class CommonProcessor {
             String code = Jsoup.parse(page.getHtml().css("div[class='cur_postion w960']").get()).select("span").last().text();
             ArtTypeUtil artTypeUtil = new ArtTypeUtil();
             if(type==1){
-                artTypeUtil.setSxTypeCode(StringUtil.getSxType(code.substring(1, 2)));
+                artTypeUtil.setSxTypeCode(StringUtil.getSxType(code.substring(1, 2)).split(",")[0]);
             }else if(type==2){
                 artTypeUtil.setSxTypeCode(StringUtil.getCodeSwitch(code)).setArtCode(artId);
             }
