@@ -1,9 +1,14 @@
 {
-  "name": "lazda-robot-001",
+  "name": "node-puppeteer",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
-  "author": "RRBOTS",
-  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "axios": "^0.20.0",
     "generate-password": "^1.5.1",
